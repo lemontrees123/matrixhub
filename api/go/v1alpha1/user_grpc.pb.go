@@ -24,7 +24,7 @@ const (
 	Users_GetUser_FullMethodName           = "/matrixhub.v1alpha1.Users/GetUser"
 	Users_DeleteUser_FullMethodName        = "/matrixhub.v1alpha1.Users/DeleteUser"
 	Users_ResetUserPassword_FullMethodName = "/matrixhub.v1alpha1.Users/ResetUserPassword"
-	Users_UpdateUserRoles_FullMethodName   = "/matrixhub.v1alpha1.Users/UpdateUserRoles"
+	Users_SetUserSysAdmin_FullMethodName   = "/matrixhub.v1alpha1.Users/SetUserSysAdmin"
 )
 
 // UsersClient is the client API for Users service.
@@ -36,7 +36,7 @@ type UsersClient interface {
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 	ResetUserPassword(ctx context.Context, in *ResetUserPasswordRequest, opts ...grpc.CallOption) (*ResetUserPasswordResponse, error)
-	UpdateUserRoles(ctx context.Context, in *UpdateUserRolesRequest, opts ...grpc.CallOption) (*UpdateUserRolesResponse, error)
+	SetUserSysAdmin(ctx context.Context, in *SetUserSysAdminRequest, opts ...grpc.CallOption) (*SetUserSysAdminResponse, error)
 }
 
 type usersClient struct {
@@ -97,10 +97,10 @@ func (c *usersClient) ResetUserPassword(ctx context.Context, in *ResetUserPasswo
 	return out, nil
 }
 
-func (c *usersClient) UpdateUserRoles(ctx context.Context, in *UpdateUserRolesRequest, opts ...grpc.CallOption) (*UpdateUserRolesResponse, error) {
+func (c *usersClient) SetUserSysAdmin(ctx context.Context, in *SetUserSysAdminRequest, opts ...grpc.CallOption) (*SetUserSysAdminResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UpdateUserRolesResponse)
-	err := c.cc.Invoke(ctx, Users_UpdateUserRoles_FullMethodName, in, out, cOpts...)
+	out := new(SetUserSysAdminResponse)
+	err := c.cc.Invoke(ctx, Users_SetUserSysAdmin_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ type UsersServer interface {
 	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 	ResetUserPassword(context.Context, *ResetUserPasswordRequest) (*ResetUserPasswordResponse, error)
-	UpdateUserRoles(context.Context, *UpdateUserRolesRequest) (*UpdateUserRolesResponse, error)
+	SetUserSysAdmin(context.Context, *SetUserSysAdminRequest) (*SetUserSysAdminResponse, error)
 }
 
 // UnimplementedUsersServer should be embedded to have
@@ -141,8 +141,8 @@ func (UnimplementedUsersServer) DeleteUser(context.Context, *DeleteUserRequest) 
 func (UnimplementedUsersServer) ResetUserPassword(context.Context, *ResetUserPasswordRequest) (*ResetUserPasswordResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResetUserPassword not implemented")
 }
-func (UnimplementedUsersServer) UpdateUserRoles(context.Context, *UpdateUserRolesRequest) (*UpdateUserRolesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateUserRoles not implemented")
+func (UnimplementedUsersServer) SetUserSysAdmin(context.Context, *SetUserSysAdminRequest) (*SetUserSysAdminResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetUserSysAdmin not implemented")
 }
 func (UnimplementedUsersServer) testEmbeddedByValue() {}
 
@@ -254,20 +254,20 @@ func _Users_ResetUserPassword_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Users_UpdateUserRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserRolesRequest)
+func _Users_SetUserSysAdmin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserSysAdminRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UsersServer).UpdateUserRoles(ctx, in)
+		return srv.(UsersServer).SetUserSysAdmin(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Users_UpdateUserRoles_FullMethodName,
+		FullMethod: Users_SetUserSysAdmin_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServer).UpdateUserRoles(ctx, req.(*UpdateUserRolesRequest))
+		return srv.(UsersServer).SetUserSysAdmin(ctx, req.(*SetUserSysAdminRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -300,8 +300,8 @@ var Users_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Users_ResetUserPassword_Handler,
 		},
 		{
-			MethodName: "UpdateUserRoles",
-			Handler:    _Users_UpdateUserRoles_Handler,
+			MethodName: "SetUserSysAdmin",
+			Handler:    _Users_SetUserSysAdmin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

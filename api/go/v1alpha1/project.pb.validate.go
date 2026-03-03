@@ -110,6 +110,8 @@ func (m *CreateProjectRequest) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Organization
+
 	if len(errors) > 0 {
 		return CreateProjectRequestMultiError(errors)
 	}
@@ -213,8 +215,6 @@ func (m *CreateProjectResponse) validate(all bool) error {
 	}
 
 	var errors []error
-
-	// no validation rules for ProjectId
 
 	if len(errors) > 0 {
 		return CreateProjectResponseMultiError(errors)
@@ -321,6 +321,8 @@ func (m *ListProjectsRequest) validate(all bool) error {
 	// no validation rules for Name
 
 	// no validation rules for Type
+
+	// no validation rules for ManagedOnly
 
 	// no validation rules for Page
 
@@ -593,7 +595,16 @@ func (m *GetProjectRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Name
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := GetProjectRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GetProjectRequestMultiError(errors)
@@ -699,6 +710,12 @@ func (m *GetProjectResponse) validate(all bool) error {
 
 	// no validation rules for Name
 
+	// no validation rules for Type
+
+	// no validation rules for RegistryUrl
+
+	// no validation rules for Organization
+
 	if len(errors) > 0 {
 		return GetProjectResponseMultiError(errors)
 	}
@@ -801,10 +818,10 @@ func (m *DeleteProjectRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetId() <= 0 {
+	if utf8.RuneCountInString(m.GetName()) < 1 {
 		err := DeleteProjectRequestValidationError{
-			field:  "Id",
-			reason: "value must be greater than 0",
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -1016,10 +1033,10 @@ func (m *UpdateProjectRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetId() <= 0 {
+	if utf8.RuneCountInString(m.GetName()) < 1 {
 		err := UpdateProjectRequestValidationError{
-			field:  "Id",
-			reason: "value must be greater than 0",
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -1232,40 +1249,15 @@ func (m *Project) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Id
-
 	// no validation rules for Name
 
 	// no validation rules for Type
 
-	if all {
-		switch v := interface{}(m.GetRegistryId()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ProjectValidationError{
-					field:  "RegistryId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ProjectValidationError{
-					field:  "RegistryId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRegistryId()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ProjectValidationError{
-				field:  "RegistryId",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for EnabledRegistry
+
+	// no validation rules for ModelCount
+
+	// no validation rules for DatasetCount
 
 	if all {
 		switch v := interface{}(m.GetUpdatedAt()).(type) {
@@ -1395,10 +1387,10 @@ func (m *ListProjectMembersRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetProjectId() <= 0 {
+	if utf8.RuneCountInString(m.GetName()) < 1 {
 		err := ListProjectMembersRequestValidationError{
-			field:  "ProjectId",
-			reason: "value must be greater than 0",
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -1406,7 +1398,16 @@ func (m *ListProjectMembersRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for Username
+	if utf8.RuneCountInString(m.GetMemberName()) < 1 {
+		err := ListProjectMembersRequestValidationError{
+			field:  "MemberName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Page
 
@@ -1679,40 +1680,13 @@ func (m *ProjectMember) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UserId
+	// no validation rules for MemberId
 
-	// no validation rules for Username
+	// no validation rules for MemberName
 
 	// no validation rules for MemberType
 
-	if all {
-		switch v := interface{}(m.GetRole()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ProjectMemberValidationError{
-					field:  "Role",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ProjectMemberValidationError{
-					field:  "Role",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRole()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ProjectMemberValidationError{
-				field:  "Role",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
+	// no validation rules for Role
 
 	if len(errors) > 0 {
 		return ProjectMemberMultiError(errors)
@@ -1814,10 +1788,10 @@ func (m *AddProjectMemberWithRoleRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetProjectId() <= 0 {
+	if utf8.RuneCountInString(m.GetName()) < 1 {
 		err := AddProjectMemberWithRoleRequestValidationError{
-			field:  "ProjectId",
-			reason: "value must be greater than 0",
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -1847,10 +1821,10 @@ func (m *AddProjectMemberWithRoleRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.GetRoleId() <= 0 {
+	if _, ok := ProjectRoleType_name[int32(m.GetRole())]; !ok {
 		err := AddProjectMemberWithRoleRequestValidationError{
-			field:  "RoleId",
-			reason: "value must be greater than 0",
+			field:  "Role",
+			reason: "value must be one of the defined enum values",
 		}
 		if !all {
 			return err
@@ -2044,32 +2018,32 @@ var _ interface {
 	ErrorName() string
 } = AddProjectMemberWithRoleResponseValidationError{}
 
-// Validate checks the field values on RemoveProjectMemberRequest with the
+// Validate checks the field values on RemoveProjectMembersRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RemoveProjectMemberRequest) Validate() error {
+func (m *RemoveProjectMembersRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RemoveProjectMemberRequest with the
+// ValidateAll checks the field values on RemoveProjectMembersRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// RemoveProjectMemberRequestMultiError, or nil if none found.
-func (m *RemoveProjectMemberRequest) ValidateAll() error {
+// RemoveProjectMembersRequestMultiError, or nil if none found.
+func (m *RemoveProjectMembersRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RemoveProjectMemberRequest) validate(all bool) error {
+func (m *RemoveProjectMembersRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	if m.GetProjectId() <= 0 {
-		err := RemoveProjectMemberRequestValidationError{
-			field:  "ProjectId",
-			reason: "value must be greater than 0",
+	if utf8.RuneCountInString(m.GetName()) < 1 {
+		err := RemoveProjectMembersRequestValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -2084,7 +2058,7 @@ func (m *RemoveProjectMemberRequest) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, RemoveProjectMemberRequestValidationError{
+					errors = append(errors, RemoveProjectMembersRequestValidationError{
 						field:  fmt.Sprintf("Members[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -2092,7 +2066,7 @@ func (m *RemoveProjectMemberRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, RemoveProjectMemberRequestValidationError{
+					errors = append(errors, RemoveProjectMembersRequestValidationError{
 						field:  fmt.Sprintf("Members[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -2101,7 +2075,7 @@ func (m *RemoveProjectMemberRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RemoveProjectMemberRequestValidationError{
+				return RemoveProjectMembersRequestValidationError{
 					field:  fmt.Sprintf("Members[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -2112,19 +2086,19 @@ func (m *RemoveProjectMemberRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return RemoveProjectMemberRequestMultiError(errors)
+		return RemoveProjectMembersRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// RemoveProjectMemberRequestMultiError is an error wrapping multiple
-// validation errors returned by RemoveProjectMemberRequest.ValidateAll() if
+// RemoveProjectMembersRequestMultiError is an error wrapping multiple
+// validation errors returned by RemoveProjectMembersRequest.ValidateAll() if
 // the designated constraints aren't met.
-type RemoveProjectMemberRequestMultiError []error
+type RemoveProjectMembersRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RemoveProjectMemberRequestMultiError) Error() string {
+func (m RemoveProjectMembersRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2133,11 +2107,12 @@ func (m RemoveProjectMemberRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RemoveProjectMemberRequestMultiError) AllErrors() []error { return m }
+func (m RemoveProjectMembersRequestMultiError) AllErrors() []error { return m }
 
-// RemoveProjectMemberRequestValidationError is the validation error returned
-// by RemoveProjectMemberRequest.Validate if the designated constraints aren't met.
-type RemoveProjectMemberRequestValidationError struct {
+// RemoveProjectMembersRequestValidationError is the validation error returned
+// by RemoveProjectMembersRequest.Validate if the designated constraints
+// aren't met.
+type RemoveProjectMembersRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2145,24 +2120,24 @@ type RemoveProjectMemberRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e RemoveProjectMemberRequestValidationError) Field() string { return e.field }
+func (e RemoveProjectMembersRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RemoveProjectMemberRequestValidationError) Reason() string { return e.reason }
+func (e RemoveProjectMembersRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RemoveProjectMemberRequestValidationError) Cause() error { return e.cause }
+func (e RemoveProjectMembersRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RemoveProjectMemberRequestValidationError) Key() bool { return e.key }
+func (e RemoveProjectMembersRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RemoveProjectMemberRequestValidationError) ErrorName() string {
-	return "RemoveProjectMemberRequestValidationError"
+func (e RemoveProjectMembersRequestValidationError) ErrorName() string {
+	return "RemoveProjectMembersRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e RemoveProjectMemberRequestValidationError) Error() string {
+func (e RemoveProjectMembersRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2174,14 +2149,14 @@ func (e RemoveProjectMemberRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRemoveProjectMemberRequest.%s: %s%s",
+		"invalid %sRemoveProjectMembersRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RemoveProjectMemberRequestValidationError{}
+var _ error = RemoveProjectMembersRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -2189,7 +2164,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RemoveProjectMemberRequestValidationError{}
+} = RemoveProjectMembersRequestValidationError{}
 
 // Validate checks the field values on MemberToRemove with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -2313,22 +2288,22 @@ var _ interface {
 	ErrorName() string
 } = MemberToRemoveValidationError{}
 
-// Validate checks the field values on RemoveProjectMemberResponse with the
+// Validate checks the field values on RemoveProjectMembersResponse with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *RemoveProjectMemberResponse) Validate() error {
+func (m *RemoveProjectMembersResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RemoveProjectMemberResponse with the
+// ValidateAll checks the field values on RemoveProjectMembersResponse with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// RemoveProjectMemberResponseMultiError, or nil if none found.
-func (m *RemoveProjectMemberResponse) ValidateAll() error {
+// RemoveProjectMembersResponseMultiError, or nil if none found.
+func (m *RemoveProjectMembersResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RemoveProjectMemberResponse) validate(all bool) error {
+func (m *RemoveProjectMembersResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2336,19 +2311,19 @@ func (m *RemoveProjectMemberResponse) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return RemoveProjectMemberResponseMultiError(errors)
+		return RemoveProjectMembersResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// RemoveProjectMemberResponseMultiError is an error wrapping multiple
-// validation errors returned by RemoveProjectMemberResponse.ValidateAll() if
+// RemoveProjectMembersResponseMultiError is an error wrapping multiple
+// validation errors returned by RemoveProjectMembersResponse.ValidateAll() if
 // the designated constraints aren't met.
-type RemoveProjectMemberResponseMultiError []error
+type RemoveProjectMembersResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RemoveProjectMemberResponseMultiError) Error() string {
+func (m RemoveProjectMembersResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2357,12 +2332,12 @@ func (m RemoveProjectMemberResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RemoveProjectMemberResponseMultiError) AllErrors() []error { return m }
+func (m RemoveProjectMembersResponseMultiError) AllErrors() []error { return m }
 
-// RemoveProjectMemberResponseValidationError is the validation error returned
-// by RemoveProjectMemberResponse.Validate if the designated constraints
+// RemoveProjectMembersResponseValidationError is the validation error returned
+// by RemoveProjectMembersResponse.Validate if the designated constraints
 // aren't met.
-type RemoveProjectMemberResponseValidationError struct {
+type RemoveProjectMembersResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2370,24 +2345,24 @@ type RemoveProjectMemberResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e RemoveProjectMemberResponseValidationError) Field() string { return e.field }
+func (e RemoveProjectMembersResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RemoveProjectMemberResponseValidationError) Reason() string { return e.reason }
+func (e RemoveProjectMembersResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RemoveProjectMemberResponseValidationError) Cause() error { return e.cause }
+func (e RemoveProjectMembersResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RemoveProjectMemberResponseValidationError) Key() bool { return e.key }
+func (e RemoveProjectMembersResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RemoveProjectMemberResponseValidationError) ErrorName() string {
-	return "RemoveProjectMemberResponseValidationError"
+func (e RemoveProjectMembersResponseValidationError) ErrorName() string {
+	return "RemoveProjectMembersResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e RemoveProjectMemberResponseValidationError) Error() string {
+func (e RemoveProjectMembersResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2399,14 +2374,14 @@ func (e RemoveProjectMemberResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRemoveProjectMemberResponse.%s: %s%s",
+		"invalid %sRemoveProjectMembersResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = RemoveProjectMemberResponseValidationError{}
+var _ error = RemoveProjectMembersResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -2414,7 +2389,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RemoveProjectMemberResponseValidationError{}
+} = RemoveProjectMembersResponseValidationError{}
 
 // Validate checks the field values on UpdateProjectMemberRoleRequest with the
 // rules defined in the proto definition for this message. If any rules are
@@ -2438,10 +2413,10 @@ func (m *UpdateProjectMemberRoleRequest) validate(all bool) error {
 
 	var errors []error
 
-	if m.GetProjectId() <= 0 {
+	if utf8.RuneCountInString(m.GetName()) < 1 {
 		err := UpdateProjectMemberRoleRequestValidationError{
-			field:  "ProjectId",
-			reason: "value must be greater than 0",
+			field:  "Name",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -2471,10 +2446,10 @@ func (m *UpdateProjectMemberRoleRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if m.GetRoleId() <= 0 {
+	if _, ok := ProjectRoleType_name[int32(m.GetRole())]; !ok {
 		err := UpdateProjectMemberRoleRequestValidationError{
-			field:  "RoleId",
-			reason: "value must be greater than 0",
+			field:  "Role",
+			reason: "value must be one of the defined enum values",
 		}
 		if !all {
 			return err

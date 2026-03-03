@@ -186,14 +186,14 @@
         ]
       }
     },
-    "/apis/v1alpha1/users/{id}/roles": {
+    "/apis/v1alpha1/users/{id}/sysadmin": {
       "put": {
-        "operationId": "Users_UpdateUserRoles",
+        "operationId": "Users_SetUserSysAdmin",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1alpha1UpdateUserRolesResponse"
+              "$ref": "#/definitions/v1alpha1SetUserSysAdminResponse"
             }
           },
           "default": {
@@ -215,7 +215,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UsersUpdateUserRolesBody"
+              "$ref": "#/definitions/UsersSetUserSysAdminBody"
             }
           }
         ],
@@ -234,22 +234,11 @@
         }
       }
     },
-    "UsersUpdateUserRolesBody": {
+    "UsersSetUserSysAdminBody": {
       "type": "object",
       "properties": {
-        "addRoles": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "removeRoles": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int32"
-          }
+        "sysadminFlag": {
+          "type": "boolean"
         }
       }
     },
@@ -290,12 +279,8 @@
         "password": {
           "type": "string"
         },
-        "roles": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int32"
-          }
+        "isAdmin": {
+          "type": "boolean"
         }
       }
     },
@@ -363,7 +348,7 @@
     "v1alpha1ResetUserPasswordResponse": {
       "type": "object"
     },
-    "v1alpha1UpdateUserRolesResponse": {
+    "v1alpha1SetUserSysAdminResponse": {
       "type": "object"
     },
     "v1alpha1User": {
@@ -377,8 +362,27 @@
         },
         "email": {
           "type": "string"
+        },
+        "isAdmin": {
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "#/definitions/v1alpha1UserSource"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
         }
       }
+    },
+    "v1alpha1UserSource": {
+      "type": "string",
+      "enum": [
+        "USER_SOURCE_UNSPECIFIED",
+        "USER_SOURCE_LOCAL"
+      ],
+      "default": "USER_SOURCE_UNSPECIFIED",
+      "title": "UserSource defines the source of user"
     }
   }
 }

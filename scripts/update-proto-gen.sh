@@ -88,8 +88,10 @@ for version in ${VERSIONS[@]}; do
     --go-grpc_opt=paths=source_relative,require_unimplemented_servers=false \
     --grpc-gateway_out="${GO_DIR}" \
     --grpc-gateway_opt=paths=source_relative \
+    --grpc-gateway_opt=allow_delete_body=true \
     --validate_out="lang=go:${GO_DIR}" \
     --validate_opt=paths=source_relative \
     --openapiv2_out="${SWAGGER_DIR}" \
+    --openapiv2_opt=allow_delete_body=true \
     --grpc-gateway-ts_out="${TS_DIR}"
 done

@@ -4,36 +4,8 @@ package matrixhub.v1alpha1;
 
 option go_package = "github.com/matrixhub-ai/matrixhub/api/go/v1alpha1;v1alpha1";
 
-import "google/api/annotations.proto";
-import "v1alpha1/utils.proto";
-
-service Role {
-  rpc ListRoles(ListRolesRequest) returns (ListRolesResponse) {
-    option (google.api.http) = {
-      get: "/api/v1alpha1/roles"
-    };
-  }
-}
-
-enum RoleScope {
-  ROLE_SCOPE_UNSPECIFIED = 0;
-  ROLE_SCOPE_PLATFORM = 1;
-  ROLE_SCOPE_PROJECT = 2;
-}
-
-message RoleInfo {
-  int32 id = 1;
-  string name = 2;
-  string display_name = 3;
-}
-
-message ListRolesRequest {
-  RoleScope scope = 1;
-  int32 page = 2;
-  int32 page_size = 3;
-}
-
-message ListRolesResponse {
-  repeated RoleInfo roles = 1;
-  Pagination pagination = 2;
+enum ProjectRoleType {
+  ROLE_TYPE_PROJECT_ADMIN = 0;
+  ROLE_TYPE_PROJECT_EDITOR = 1;
+  ROLE_TYPE_PROJECT_VIEWER = 2;
 }

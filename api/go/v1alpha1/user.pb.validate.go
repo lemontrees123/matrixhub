@@ -62,6 +62,39 @@ func (m *User) validate(all bool) error {
 
 	// no validation rules for Email
 
+	// no validation rules for IsAdmin
+
+	// no validation rules for Source
+
+	if all {
+		switch v := interface{}(m.GetCreatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UserValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UserValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UserValidationError{
+				field:  "CreatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return UserMultiError(errors)
 	}
@@ -182,6 +215,8 @@ func (m *CreateUserRequest) validate(all bool) error {
 		}
 		errors = append(errors, err)
 	}
+
+	// no validation rules for IsAdmin
 
 	if len(errors) > 0 {
 		return CreateUserRequestMultiError(errors)
@@ -1068,22 +1103,22 @@ var _ interface {
 	ErrorName() string
 } = DeleteUserResponseValidationError{}
 
-// Validate checks the field values on UpdateUserRolesRequest with the rules
+// Validate checks the field values on SetUserSysAdminRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UpdateUserRolesRequest) Validate() error {
+func (m *SetUserSysAdminRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UpdateUserRolesRequest with the rules
+// ValidateAll checks the field values on SetUserSysAdminRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UpdateUserRolesRequestMultiError, or nil if none found.
-func (m *UpdateUserRolesRequest) ValidateAll() error {
+// SetUserSysAdminRequestMultiError, or nil if none found.
+func (m *SetUserSysAdminRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UpdateUserRolesRequest) validate(all bool) error {
+func (m *SetUserSysAdminRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1091,7 +1126,7 @@ func (m *UpdateUserRolesRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetId()) < 1 {
-		err := UpdateUserRolesRequestValidationError{
+		err := SetUserSysAdminRequestValidationError{
 			field:  "Id",
 			reason: "value length must be at least 1 runes",
 		}
@@ -1101,20 +1136,22 @@ func (m *UpdateUserRolesRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	// no validation rules for SysadminFlag
+
 	if len(errors) > 0 {
-		return UpdateUserRolesRequestMultiError(errors)
+		return SetUserSysAdminRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// UpdateUserRolesRequestMultiError is an error wrapping multiple validation
-// errors returned by UpdateUserRolesRequest.ValidateAll() if the designated
+// SetUserSysAdminRequestMultiError is an error wrapping multiple validation
+// errors returned by SetUserSysAdminRequest.ValidateAll() if the designated
 // constraints aren't met.
-type UpdateUserRolesRequestMultiError []error
+type SetUserSysAdminRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UpdateUserRolesRequestMultiError) Error() string {
+func (m SetUserSysAdminRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1123,11 +1160,11 @@ func (m UpdateUserRolesRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UpdateUserRolesRequestMultiError) AllErrors() []error { return m }
+func (m SetUserSysAdminRequestMultiError) AllErrors() []error { return m }
 
-// UpdateUserRolesRequestValidationError is the validation error returned by
-// UpdateUserRolesRequest.Validate if the designated constraints aren't met.
-type UpdateUserRolesRequestValidationError struct {
+// SetUserSysAdminRequestValidationError is the validation error returned by
+// SetUserSysAdminRequest.Validate if the designated constraints aren't met.
+type SetUserSysAdminRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1135,24 +1172,24 @@ type UpdateUserRolesRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateUserRolesRequestValidationError) Field() string { return e.field }
+func (e SetUserSysAdminRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateUserRolesRequestValidationError) Reason() string { return e.reason }
+func (e SetUserSysAdminRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateUserRolesRequestValidationError) Cause() error { return e.cause }
+func (e SetUserSysAdminRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateUserRolesRequestValidationError) Key() bool { return e.key }
+func (e SetUserSysAdminRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateUserRolesRequestValidationError) ErrorName() string {
-	return "UpdateUserRolesRequestValidationError"
+func (e SetUserSysAdminRequestValidationError) ErrorName() string {
+	return "SetUserSysAdminRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateUserRolesRequestValidationError) Error() string {
+func (e SetUserSysAdminRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1164,14 +1201,14 @@ func (e UpdateUserRolesRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateUserRolesRequest.%s: %s%s",
+		"invalid %sSetUserSysAdminRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateUserRolesRequestValidationError{}
+var _ error = SetUserSysAdminRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -1179,24 +1216,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateUserRolesRequestValidationError{}
+} = SetUserSysAdminRequestValidationError{}
 
-// Validate checks the field values on UpdateUserRolesResponse with the rules
+// Validate checks the field values on SetUserSysAdminResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UpdateUserRolesResponse) Validate() error {
+func (m *SetUserSysAdminResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on UpdateUserRolesResponse with the
+// ValidateAll checks the field values on SetUserSysAdminResponse with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// UpdateUserRolesResponseMultiError, or nil if none found.
-func (m *UpdateUserRolesResponse) ValidateAll() error {
+// SetUserSysAdminResponseMultiError, or nil if none found.
+func (m *SetUserSysAdminResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *UpdateUserRolesResponse) validate(all bool) error {
+func (m *SetUserSysAdminResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1204,19 +1241,19 @@ func (m *UpdateUserRolesResponse) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return UpdateUserRolesResponseMultiError(errors)
+		return SetUserSysAdminResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// UpdateUserRolesResponseMultiError is an error wrapping multiple validation
-// errors returned by UpdateUserRolesResponse.ValidateAll() if the designated
+// SetUserSysAdminResponseMultiError is an error wrapping multiple validation
+// errors returned by SetUserSysAdminResponse.ValidateAll() if the designated
 // constraints aren't met.
-type UpdateUserRolesResponseMultiError []error
+type SetUserSysAdminResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m UpdateUserRolesResponseMultiError) Error() string {
+func (m SetUserSysAdminResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1225,11 +1262,11 @@ func (m UpdateUserRolesResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m UpdateUserRolesResponseMultiError) AllErrors() []error { return m }
+func (m SetUserSysAdminResponseMultiError) AllErrors() []error { return m }
 
-// UpdateUserRolesResponseValidationError is the validation error returned by
-// UpdateUserRolesResponse.Validate if the designated constraints aren't met.
-type UpdateUserRolesResponseValidationError struct {
+// SetUserSysAdminResponseValidationError is the validation error returned by
+// SetUserSysAdminResponse.Validate if the designated constraints aren't met.
+type SetUserSysAdminResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1237,24 +1274,24 @@ type UpdateUserRolesResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e UpdateUserRolesResponseValidationError) Field() string { return e.field }
+func (e SetUserSysAdminResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e UpdateUserRolesResponseValidationError) Reason() string { return e.reason }
+func (e SetUserSysAdminResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e UpdateUserRolesResponseValidationError) Cause() error { return e.cause }
+func (e SetUserSysAdminResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e UpdateUserRolesResponseValidationError) Key() bool { return e.key }
+func (e SetUserSysAdminResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e UpdateUserRolesResponseValidationError) ErrorName() string {
-	return "UpdateUserRolesResponseValidationError"
+func (e SetUserSysAdminResponseValidationError) ErrorName() string {
+	return "SetUserSysAdminResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e UpdateUserRolesResponseValidationError) Error() string {
+func (e SetUserSysAdminResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1266,14 +1303,14 @@ func (e UpdateUserRolesResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sUpdateUserRolesResponse.%s: %s%s",
+		"invalid %sSetUserSysAdminResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = UpdateUserRolesResponseValidationError{}
+var _ error = SetUserSysAdminResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -1281,7 +1318,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = UpdateUserRolesResponseValidationError{}
+} = SetUserSysAdminResponseValidationError{}
 
 // Validate checks the field values on ResetUserPasswordRequest with the rules
 // defined in the proto definition for this message. If any rules are

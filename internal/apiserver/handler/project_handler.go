@@ -29,6 +29,10 @@ type ProjectHandler struct {
 	ProjectService project.IProjectService
 }
 
+func (ph *ProjectHandler) RemoveProjectMembers(ctx context.Context, request *projectv1alpha1.RemoveProjectMembersRequest) (*projectv1alpha1.RemoveProjectMembersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "Not implemented")
+}
+
 func (ph *ProjectHandler) UpdateProject(ctx context.Context, request *projectv1alpha1.UpdateProjectRequest) (*projectv1alpha1.UpdateProjectResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "Not implemented")
 }
@@ -42,10 +46,6 @@ func (ph *ProjectHandler) DeleteProject(ctx context.Context, request *projectv1a
 }
 
 func (ph *ProjectHandler) AddProjectMemberWithRole(ctx context.Context, request *projectv1alpha1.AddProjectMemberWithRoleRequest) (*projectv1alpha1.AddProjectMemberWithRoleResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "Not implemented")
-}
-
-func (ph *ProjectHandler) RemoveProjectMember(ctx context.Context, request *projectv1alpha1.RemoveProjectMemberRequest) (*projectv1alpha1.RemoveProjectMemberResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "Not implemented")
 }
 
@@ -71,18 +71,7 @@ func (ph *ProjectHandler) RegisterToServer(opt *ServerOptions) {
 }
 
 func (ph *ProjectHandler) GetProject(ctx context.Context, request *projectv1alpha1.GetProjectRequest) (*projectv1alpha1.GetProjectResponse, error) {
-	if err := request.ValidateAll(); err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
-	result, err := ph.ProjectService.GetProject(ctx, &project.Project{Name: request.Name})
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-	output := &projectv1alpha1.GetProjectResponse{
-		Name: result.Name,
-	}
-	return output, nil
+	return nil, status.Error(codes.Unimplemented, "Not implemented")
 }
 
 func (ph *ProjectHandler) CreateProject(ctx context.Context, request *projectv1alpha1.CreateProjectRequest) (*projectv1alpha1.CreateProjectResponse, error) {

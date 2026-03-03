@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	CurrentUser_GetCurrentUser_FullMethodName    = "/matrixhub.v1alpha1.CurrentUser/GetCurrentUser"
 	CurrentUser_ResetPassword_FullMethodName     = "/matrixhub.v1alpha1.CurrentUser/ResetPassword"
 	CurrentUser_ListAccessTokens_FullMethodName  = "/matrixhub.v1alpha1.CurrentUser/ListAccessTokens"
 	CurrentUser_CreateAccessToken_FullMethodName = "/matrixhub.v1alpha1.CurrentUser/CreateAccessToken"
@@ -30,6 +31,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CurrentUserClient interface {
+	GetCurrentUser(ctx context.Context, in *GetCurrentUserRequest, opts ...grpc.CallOption) (*GetCurrentUserResponse, error)
 	ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error)
 	ListAccessTokens(ctx context.Context, in *ListAccessTokensRequest, opts ...grpc.CallOption) (*ListAccessTokensResponse, error)
 	CreateAccessToken(ctx context.Context, in *CreateAccessTokenRequest, opts ...grpc.CallOption) (*CreateAccessTokenResponse, error)
@@ -43,6 +45,16 @@ type currentUserClient struct {
 
 func NewCurrentUserClient(cc grpc.ClientConnInterface) CurrentUserClient {
 	return &currentUserClient{cc}
+}
+
+func (c *currentUserClient) GetCurrentUser(ctx context.Context, in *GetCurrentUserRequest, opts ...grpc.CallOption) (*GetCurrentUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCurrentUserResponse)
+	err := c.cc.Invoke(ctx, CurrentUser_GetCurrentUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *currentUserClient) ResetPassword(ctx context.Context, in *ResetPasswordRequest, opts ...grpc.CallOption) (*ResetPasswordResponse, error) {
@@ -99,6 +111,7 @@ func (c *currentUserClient) GetProjectRoles(ctx context.Context, in *GetProjectR
 // All implementations should embed UnimplementedCurrentUserServer
 // for forward compatibility.
 type CurrentUserServer interface {
+	GetCurrentUser(context.Context, *GetCurrentUserRequest) (*GetCurrentUserResponse, error)
 	ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error)
 	ListAccessTokens(context.Context, *ListAccessTokensRequest) (*ListAccessTokensResponse, error)
 	CreateAccessToken(context.Context, *CreateAccessTokenRequest) (*CreateAccessTokenResponse, error)
@@ -113,6 +126,9 @@ type CurrentUserServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCurrentUserServer struct{}
 
+func (UnimplementedCurrentUserServer) GetCurrentUser(context.Context, *GetCurrentUserRequest) (*GetCurrentUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetCurrentUser not implemented")
+}
 func (UnimplementedCurrentUserServer) ResetPassword(context.Context, *ResetPasswordRequest) (*ResetPasswordResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ResetPassword not implemented")
 }
@@ -146,6 +162,24 @@ func RegisterCurrentUserServer(s grpc.ServiceRegistrar, srv CurrentUserServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&CurrentUser_ServiceDesc, srv)
+}
+
+func _CurrentUser_GetCurrentUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCurrentUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CurrentUserServer).GetCurrentUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CurrentUser_GetCurrentUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CurrentUserServer).GetCurrentUser(ctx, req.(*GetCurrentUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _CurrentUser_ResetPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -245,6 +279,10 @@ var CurrentUser_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "matrixhub.v1alpha1.CurrentUser",
 	HandlerType: (*CurrentUserServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetCurrentUser",
+			Handler:    _CurrentUser_GetCurrentUser_Handler,
+		},
 		{
 			MethodName: "ResetPassword",
 			Handler:    _CurrentUser_ResetPassword_Handler,

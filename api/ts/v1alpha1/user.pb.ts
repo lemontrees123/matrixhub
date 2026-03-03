@@ -5,17 +5,27 @@
 */
 
 import * as fm from "../fetch.pb"
+import * as GoogleProtobufTimestamp from "../google/protobuf/timestamp.pb"
 import * as MatrixhubV1alpha1Utils from "./utils.pb"
+
+export enum UserSource {
+  USER_SOURCE_UNSPECIFIED = "USER_SOURCE_UNSPECIFIED",
+  USER_SOURCE_LOCAL = "USER_SOURCE_LOCAL",
+}
+
 export type User = {
   id?: string
   username?: string
   email?: string
+  isAdmin?: boolean
+  source?: UserSource
+  createdAt?: GoogleProtobufTimestamp.Timestamp
 }
 
 export type CreateUserRequest = {
   username?: string
   password?: string
-  roles?: number[]
+  isAdmin?: boolean
 }
 
 export type CreateUserResponse = {
@@ -49,13 +59,12 @@ export type DeleteUserRequest = {
 export type DeleteUserResponse = {
 }
 
-export type UpdateUserRolesRequest = {
+export type SetUserSysAdminRequest = {
   id?: string
-  addRoles?: number[]
-  removeRoles?: number[]
+  sysadminFlag?: boolean
 }
 
-export type UpdateUserRolesResponse = {
+export type SetUserSysAdminResponse = {
 }
 
 export type ResetUserPasswordRequest = {
@@ -82,7 +91,7 @@ export class Users {
   static ResetUserPassword(req: ResetUserPasswordRequest, initReq?: fm.InitReq): Promise<ResetUserPasswordResponse> {
     return fm.fetchReq<ResetUserPasswordRequest, ResetUserPasswordResponse>(`/api/v1alpha1/users/${req["id"]}/reset-password`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
-  static UpdateUserRoles(req: UpdateUserRolesRequest, initReq?: fm.InitReq): Promise<UpdateUserRolesResponse> {
-    return fm.fetchReq<UpdateUserRolesRequest, UpdateUserRolesResponse>(`/apis/v1alpha1/users/${req["id"]}/roles`, {...initReq, method: "PUT", body: JSON.stringify(req, fm.replacer)})
+  static SetUserSysAdmin(req: SetUserSysAdminRequest, initReq?: fm.InitReq): Promise<SetUserSysAdminResponse> {
+    return fm.fetchReq<SetUserSysAdminRequest, SetUserSysAdminResponse>(`/apis/v1alpha1/users/${req["id"]}/sysadmin`, {...initReq, method: "PUT", body: JSON.stringify(req, fm.replacer)})
   }
 }

@@ -30,12 +30,11 @@ type UserHandler struct {
 	userRepo user.IUserRepo
 }
 
-func (u *UserHandler) ResetUserPassword(ctx context.Context, request *userv1alpha1.ResetUserPasswordRequest) (*userv1alpha1.ResetUserPasswordResponse, error) {
-	// TODO implement me
-	panic("implement me")
+func (u *UserHandler) SetUserSysAdmin(ctx context.Context, request *userv1alpha1.SetUserSysAdminRequest) (*userv1alpha1.SetUserSysAdminResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "Not implemented")
 }
 
-func (u *UserHandler) UpdateUserRoles(ctx context.Context, request *userv1alpha1.UpdateUserRolesRequest) (*userv1alpha1.UpdateUserRolesResponse, error) {
+func (u *UserHandler) ResetUserPassword(ctx context.Context, request *userv1alpha1.ResetUserPasswordRequest) (*userv1alpha1.ResetUserPasswordResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "Not implemented")
 }
 

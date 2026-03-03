@@ -16,6 +16,28 @@
     "application/json"
   ],
   "paths": {
+    "/api/v1alpha1/current-user": {
+      "get": {
+        "operationId": "CurrentUser_GetCurrentUser",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alpha1GetCurrentUserResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "CurrentUser"
+        ]
+      }
+    },
     "/api/v1alpha1/current-user/access-tokens": {
       "get": {
         "operationId": "CurrentUser_ListAccessTokens",
@@ -24,6 +46,28 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v1alpha1ListAccessTokensResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "CurrentUser"
+        ]
+      }
+    },
+    "/api/v1alpha1/current-user/projects/role": {
+      "get": {
+        "operationId": "CurrentUser_GetProjectRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alpha1GetProjectRolesResponse"
             }
           },
           "default": {
@@ -65,28 +109,6 @@
             }
           }
         ],
-        "tags": [
-          "CurrentUser"
-        ]
-      }
-    },
-    "/api/v1alpha1/users/projects/roles": {
-      "get": {
-        "operationId": "CurrentUser_GetProjectRoles",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1alpha1GetProjectRolesResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
         "tags": [
           "CurrentUser"
         ]
@@ -230,13 +252,27 @@
     "v1alpha1DeleteAccessTokenResponse": {
       "type": "object"
     },
+    "v1alpha1GetCurrentUserResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "isAdmin": {
+          "type": "boolean"
+        }
+      }
+    },
     "v1alpha1GetProjectRolesResponse": {
       "type": "object",
       "properties": {
         "projectRoles": {
           "type": "object",
           "additionalProperties": {
-            "type": "string"
+            "$ref": "#/definitions/v1alpha1ProjectRoleType"
           }
         }
       }
@@ -252,6 +288,15 @@
           }
         }
       }
+    },
+    "v1alpha1ProjectRoleType": {
+      "type": "string",
+      "enum": [
+        "ROLE_TYPE_PROJECT_ADMIN",
+        "ROLE_TYPE_PROJECT_EDITOR",
+        "ROLE_TYPE_PROJECT_VIEWER"
+      ],
+      "default": "ROLE_TYPE_PROJECT_ADMIN"
     },
     "v1alpha1ResetPasswordRequest": {
       "type": "object",

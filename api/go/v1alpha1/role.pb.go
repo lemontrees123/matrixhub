@@ -7,7 +7,6 @@
 package v1alpha1
 
 import (
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -22,251 +21,64 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type RoleScope int32
+type ProjectRoleType int32
 
 const (
-	RoleScope_ROLE_SCOPE_UNSPECIFIED RoleScope = 0
-	RoleScope_ROLE_SCOPE_PLATFORM    RoleScope = 1
-	RoleScope_ROLE_SCOPE_PROJECT     RoleScope = 2
+	ProjectRoleType_ROLE_TYPE_PROJECT_ADMIN  ProjectRoleType = 0
+	ProjectRoleType_ROLE_TYPE_PROJECT_EDITOR ProjectRoleType = 1
+	ProjectRoleType_ROLE_TYPE_PROJECT_VIEWER ProjectRoleType = 2
 )
 
-// Enum value maps for RoleScope.
+// Enum value maps for ProjectRoleType.
 var (
-	RoleScope_name = map[int32]string{
-		0: "ROLE_SCOPE_UNSPECIFIED",
-		1: "ROLE_SCOPE_PLATFORM",
-		2: "ROLE_SCOPE_PROJECT",
+	ProjectRoleType_name = map[int32]string{
+		0: "ROLE_TYPE_PROJECT_ADMIN",
+		1: "ROLE_TYPE_PROJECT_EDITOR",
+		2: "ROLE_TYPE_PROJECT_VIEWER",
 	}
-	RoleScope_value = map[string]int32{
-		"ROLE_SCOPE_UNSPECIFIED": 0,
-		"ROLE_SCOPE_PLATFORM":    1,
-		"ROLE_SCOPE_PROJECT":     2,
+	ProjectRoleType_value = map[string]int32{
+		"ROLE_TYPE_PROJECT_ADMIN":  0,
+		"ROLE_TYPE_PROJECT_EDITOR": 1,
+		"ROLE_TYPE_PROJECT_VIEWER": 2,
 	}
 )
 
-func (x RoleScope) Enum() *RoleScope {
-	p := new(RoleScope)
+func (x ProjectRoleType) Enum() *ProjectRoleType {
+	p := new(ProjectRoleType)
 	*p = x
 	return p
 }
 
-func (x RoleScope) String() string {
+func (x ProjectRoleType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (RoleScope) Descriptor() protoreflect.EnumDescriptor {
+func (ProjectRoleType) Descriptor() protoreflect.EnumDescriptor {
 	return file_v1alpha1_role_proto_enumTypes[0].Descriptor()
 }
 
-func (RoleScope) Type() protoreflect.EnumType {
+func (ProjectRoleType) Type() protoreflect.EnumType {
 	return &file_v1alpha1_role_proto_enumTypes[0]
 }
 
-func (x RoleScope) Number() protoreflect.EnumNumber {
+func (x ProjectRoleType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use RoleScope.Descriptor instead.
-func (RoleScope) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use ProjectRoleType.Descriptor instead.
+func (ProjectRoleType) EnumDescriptor() ([]byte, []int) {
 	return file_v1alpha1_role_proto_rawDescGZIP(), []int{0}
-}
-
-type RoleInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	DisplayName   string                 `protobuf:"bytes,3,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *RoleInfo) Reset() {
-	*x = RoleInfo{}
-	mi := &file_v1alpha1_role_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RoleInfo) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RoleInfo) ProtoMessage() {}
-
-func (x *RoleInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_role_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RoleInfo.ProtoReflect.Descriptor instead.
-func (*RoleInfo) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_role_proto_rawDescGZIP(), []int{0}
-}
-
-func (x *RoleInfo) GetId() int32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *RoleInfo) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *RoleInfo) GetDisplayName() string {
-	if x != nil {
-		return x.DisplayName
-	}
-	return ""
-}
-
-type ListRolesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Scope         RoleScope              `protobuf:"varint,1,opt,name=scope,proto3,enum=matrixhub.v1alpha1.RoleScope" json:"scope,omitempty"`
-	Page          int32                  `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
-	PageSize      int32                  `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListRolesRequest) Reset() {
-	*x = ListRolesRequest{}
-	mi := &file_v1alpha1_role_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListRolesRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListRolesRequest) ProtoMessage() {}
-
-func (x *ListRolesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_role_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListRolesRequest.ProtoReflect.Descriptor instead.
-func (*ListRolesRequest) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_role_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *ListRolesRequest) GetScope() RoleScope {
-	if x != nil {
-		return x.Scope
-	}
-	return RoleScope_ROLE_SCOPE_UNSPECIFIED
-}
-
-func (x *ListRolesRequest) GetPage() int32 {
-	if x != nil {
-		return x.Page
-	}
-	return 0
-}
-
-func (x *ListRolesRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
-}
-
-type ListRolesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Roles         []*RoleInfo            `protobuf:"bytes,1,rep,name=roles,proto3" json:"roles,omitempty"`
-	Pagination    *Pagination            `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListRolesResponse) Reset() {
-	*x = ListRolesResponse{}
-	mi := &file_v1alpha1_role_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListRolesResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListRolesResponse) ProtoMessage() {}
-
-func (x *ListRolesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_role_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListRolesResponse.ProtoReflect.Descriptor instead.
-func (*ListRolesResponse) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_role_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *ListRolesResponse) GetRoles() []*RoleInfo {
-	if x != nil {
-		return x.Roles
-	}
-	return nil
-}
-
-func (x *ListRolesResponse) GetPagination() *Pagination {
-	if x != nil {
-		return x.Pagination
-	}
-	return nil
 }
 
 var File_v1alpha1_role_proto protoreflect.FileDescriptor
 
 const file_v1alpha1_role_proto_rawDesc = "" +
 	"\n" +
-	"\x13v1alpha1/role.proto\x12\x12matrixhub.v1alpha1\x1a\x1cgoogle/api/annotations.proto\x1a\x14v1alpha1/utils.proto\"Q\n" +
-	"\bRoleInfo\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12!\n" +
-	"\fdisplay_name\x18\x03 \x01(\tR\vdisplayName\"x\n" +
-	"\x10ListRolesRequest\x123\n" +
-	"\x05scope\x18\x01 \x01(\x0e2\x1d.matrixhub.v1alpha1.RoleScopeR\x05scope\x12\x12\n" +
-	"\x04page\x18\x02 \x01(\x05R\x04page\x12\x1b\n" +
-	"\tpage_size\x18\x03 \x01(\x05R\bpageSize\"\x87\x01\n" +
-	"\x11ListRolesResponse\x122\n" +
-	"\x05roles\x18\x01 \x03(\v2\x1c.matrixhub.v1alpha1.RoleInfoR\x05roles\x12>\n" +
-	"\n" +
-	"pagination\x18\x02 \x01(\v2\x1e.matrixhub.v1alpha1.PaginationR\n" +
-	"pagination*X\n" +
-	"\tRoleScope\x12\x1a\n" +
-	"\x16ROLE_SCOPE_UNSPECIFIED\x10\x00\x12\x17\n" +
-	"\x13ROLE_SCOPE_PLATFORM\x10\x01\x12\x16\n" +
-	"\x12ROLE_SCOPE_PROJECT\x10\x022}\n" +
-	"\x04Role\x12u\n" +
-	"\tListRoles\x12$.matrixhub.v1alpha1.ListRolesRequest\x1a%.matrixhub.v1alpha1.ListRolesResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/v1alpha1/rolesB<Z:github.com/matrixhub-ai/matrixhub/api/go/v1alpha1;v1alpha1b\x06proto3"
+	"\x13v1alpha1/role.proto\x12\x12matrixhub.v1alpha1*j\n" +
+	"\x0fProjectRoleType\x12\x1b\n" +
+	"\x17ROLE_TYPE_PROJECT_ADMIN\x10\x00\x12\x1c\n" +
+	"\x18ROLE_TYPE_PROJECT_EDITOR\x10\x01\x12\x1c\n" +
+	"\x18ROLE_TYPE_PROJECT_VIEWER\x10\x02B<Z:github.com/matrixhub-ai/matrixhub/api/go/v1alpha1;v1alpha1b\x06proto3"
 
 var (
 	file_v1alpha1_role_proto_rawDescOnce sync.Once
@@ -281,25 +93,15 @@ func file_v1alpha1_role_proto_rawDescGZIP() []byte {
 }
 
 var file_v1alpha1_role_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_v1alpha1_role_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_v1alpha1_role_proto_goTypes = []any{
-	(RoleScope)(0),            // 0: matrixhub.v1alpha1.RoleScope
-	(*RoleInfo)(nil),          // 1: matrixhub.v1alpha1.RoleInfo
-	(*ListRolesRequest)(nil),  // 2: matrixhub.v1alpha1.ListRolesRequest
-	(*ListRolesResponse)(nil), // 3: matrixhub.v1alpha1.ListRolesResponse
-	(*Pagination)(nil),        // 4: matrixhub.v1alpha1.Pagination
+	(ProjectRoleType)(0), // 0: matrixhub.v1alpha1.ProjectRoleType
 }
 var file_v1alpha1_role_proto_depIdxs = []int32{
-	0, // 0: matrixhub.v1alpha1.ListRolesRequest.scope:type_name -> matrixhub.v1alpha1.RoleScope
-	1, // 1: matrixhub.v1alpha1.ListRolesResponse.roles:type_name -> matrixhub.v1alpha1.RoleInfo
-	4, // 2: matrixhub.v1alpha1.ListRolesResponse.pagination:type_name -> matrixhub.v1alpha1.Pagination
-	2, // 3: matrixhub.v1alpha1.Role.ListRoles:input_type -> matrixhub.v1alpha1.ListRolesRequest
-	3, // 4: matrixhub.v1alpha1.Role.ListRoles:output_type -> matrixhub.v1alpha1.ListRolesResponse
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	0, // [0:0] is the sub-list for method output_type
+	0, // [0:0] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_v1alpha1_role_proto_init() }
@@ -307,21 +109,19 @@ func file_v1alpha1_role_proto_init() {
 	if File_v1alpha1_role_proto != nil {
 		return
 	}
-	file_v1alpha1_utils_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_v1alpha1_role_proto_rawDesc), len(file_v1alpha1_role_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   3,
+			NumMessages:   0,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
 		GoTypes:           file_v1alpha1_role_proto_goTypes,
 		DependencyIndexes: file_v1alpha1_role_proto_depIdxs,
 		EnumInfos:         file_v1alpha1_role_proto_enumTypes,
-		MessageInfos:      file_v1alpha1_role_proto_msgTypes,
 	}.Build()
 	File_v1alpha1_role_proto = out.File
 	file_v1alpha1_role_proto_goTypes = nil

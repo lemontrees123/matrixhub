@@ -26,7 +26,7 @@ const (
 	Projects_DeleteProject_FullMethodName            = "/matrixhub.v1alpha1.Projects/DeleteProject"
 	Projects_ListProjectMembers_FullMethodName       = "/matrixhub.v1alpha1.Projects/ListProjectMembers"
 	Projects_AddProjectMemberWithRole_FullMethodName = "/matrixhub.v1alpha1.Projects/AddProjectMemberWithRole"
-	Projects_RemoveProjectMember_FullMethodName      = "/matrixhub.v1alpha1.Projects/RemoveProjectMember"
+	Projects_RemoveProjectMembers_FullMethodName     = "/matrixhub.v1alpha1.Projects/RemoveProjectMembers"
 	Projects_UpdateProjectMemberRole_FullMethodName  = "/matrixhub.v1alpha1.Projects/UpdateProjectMemberRole"
 )
 
@@ -41,7 +41,7 @@ type ProjectsClient interface {
 	DeleteProject(ctx context.Context, in *DeleteProjectRequest, opts ...grpc.CallOption) (*DeleteProjectResponse, error)
 	ListProjectMembers(ctx context.Context, in *ListProjectMembersRequest, opts ...grpc.CallOption) (*ListProjectMembersResponse, error)
 	AddProjectMemberWithRole(ctx context.Context, in *AddProjectMemberWithRoleRequest, opts ...grpc.CallOption) (*AddProjectMemberWithRoleResponse, error)
-	RemoveProjectMember(ctx context.Context, in *RemoveProjectMemberRequest, opts ...grpc.CallOption) (*RemoveProjectMemberResponse, error)
+	RemoveProjectMembers(ctx context.Context, in *RemoveProjectMembersRequest, opts ...grpc.CallOption) (*RemoveProjectMembersResponse, error)
 	UpdateProjectMemberRole(ctx context.Context, in *UpdateProjectMemberRoleRequest, opts ...grpc.CallOption) (*UpdateProjectMemberRoleResponse, error)
 }
 
@@ -123,10 +123,10 @@ func (c *projectsClient) AddProjectMemberWithRole(ctx context.Context, in *AddPr
 	return out, nil
 }
 
-func (c *projectsClient) RemoveProjectMember(ctx context.Context, in *RemoveProjectMemberRequest, opts ...grpc.CallOption) (*RemoveProjectMemberResponse, error) {
+func (c *projectsClient) RemoveProjectMembers(ctx context.Context, in *RemoveProjectMembersRequest, opts ...grpc.CallOption) (*RemoveProjectMembersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RemoveProjectMemberResponse)
-	err := c.cc.Invoke(ctx, Projects_RemoveProjectMember_FullMethodName, in, out, cOpts...)
+	out := new(RemoveProjectMembersResponse)
+	err := c.cc.Invoke(ctx, Projects_RemoveProjectMembers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ type ProjectsServer interface {
 	DeleteProject(context.Context, *DeleteProjectRequest) (*DeleteProjectResponse, error)
 	ListProjectMembers(context.Context, *ListProjectMembersRequest) (*ListProjectMembersResponse, error)
 	AddProjectMemberWithRole(context.Context, *AddProjectMemberWithRoleRequest) (*AddProjectMemberWithRoleResponse, error)
-	RemoveProjectMember(context.Context, *RemoveProjectMemberRequest) (*RemoveProjectMemberResponse, error)
+	RemoveProjectMembers(context.Context, *RemoveProjectMembersRequest) (*RemoveProjectMembersResponse, error)
 	UpdateProjectMemberRole(context.Context, *UpdateProjectMemberRoleRequest) (*UpdateProjectMemberRoleResponse, error)
 }
 
@@ -186,8 +186,8 @@ func (UnimplementedProjectsServer) ListProjectMembers(context.Context, *ListProj
 func (UnimplementedProjectsServer) AddProjectMemberWithRole(context.Context, *AddProjectMemberWithRoleRequest) (*AddProjectMemberWithRoleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AddProjectMemberWithRole not implemented")
 }
-func (UnimplementedProjectsServer) RemoveProjectMember(context.Context, *RemoveProjectMemberRequest) (*RemoveProjectMemberResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method RemoveProjectMember not implemented")
+func (UnimplementedProjectsServer) RemoveProjectMembers(context.Context, *RemoveProjectMembersRequest) (*RemoveProjectMembersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveProjectMembers not implemented")
 }
 func (UnimplementedProjectsServer) UpdateProjectMemberRole(context.Context, *UpdateProjectMemberRoleRequest) (*UpdateProjectMemberRoleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateProjectMemberRole not implemented")
@@ -338,20 +338,20 @@ func _Projects_AddProjectMemberWithRole_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Projects_RemoveProjectMember_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RemoveProjectMemberRequest)
+func _Projects_RemoveProjectMembers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveProjectMembersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProjectsServer).RemoveProjectMember(ctx, in)
+		return srv.(ProjectsServer).RemoveProjectMembers(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Projects_RemoveProjectMember_FullMethodName,
+		FullMethod: Projects_RemoveProjectMembers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProjectsServer).RemoveProjectMember(ctx, req.(*RemoveProjectMemberRequest))
+		return srv.(ProjectsServer).RemoveProjectMembers(ctx, req.(*RemoveProjectMembersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -410,8 +410,8 @@ var Projects_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Projects_AddProjectMemberWithRole_Handler,
 		},
 		{
-			MethodName: "RemoveProjectMember",
-			Handler:    _Projects_RemoveProjectMember_Handler,
+			MethodName: "RemoveProjectMembers",
+			Handler:    _Projects_RemoveProjectMembers_Handler,
 		},
 		{
 			MethodName: "UpdateProjectMemberRole",

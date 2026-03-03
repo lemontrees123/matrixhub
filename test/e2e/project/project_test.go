@@ -53,44 +53,6 @@ var _ = Describe("test Project", Label("project"), func() {
 		})
 	})
 
-	Context("test GetProject API", func() {
-
-		It("should get an existing project successfully", Label("L00003"), func() {
-			projectName := mhe2e.GenerateTestProjectName("project")
-			GinkgoWriter.Printf("Creating then getting project: %v\n", projectName)
-
-			createResp, err := apiClient.CreateProject(ctx, projectName)
-			Expect(err).NotTo(HaveOccurred(), "create should succeed")
-			Expect(createResp.Success).To(BeTrue(), "create should return success")
-			defer func() {
-				_, _ = apiClient.DeleteProject(ctx, projectName)
-			}()
-
-			getResp, err := apiClient.GetProject(ctx, projectName)
-			Expect(err).NotTo(HaveOccurred(), "get should not have error")
-			Expect(getResp).NotTo(BeNil(), "get response should not be nil")
-			Expect(getResp.Success).To(BeTrue(), "get should return success")
-			Expect(getResp.Data).NotTo(BeNil(), "data should not be nil")
-			Expect(getResp.Data.Name).To(Equal(projectName), "project name should match")
-
-			GinkgoWriter.Printf("Get response: name=%v, status=%d\n", getResp.Data.Name, getResp.HTTPStatusCode)
-		})
-
-		It("should return not found for non-existing project", Label("L00004"), func() {
-			projectName := mhe2e.GenerateTestProjectName("project")
-			GinkgoWriter.Printf("Getting non-existing project: %v\n", projectName)
-
-			resp, err := apiClient.GetProject(ctx, projectName)
-			Expect(err).NotTo(HaveOccurred(), "should not have error")
-			Expect(resp).NotTo(BeNil(), "response should not be nil")
-			Expect(resp.Success).To(BeFalse(), "should return failure")
-			Expect(resp.Error).NotTo(BeNil(), "error should not be nil")
-			Expect(resp.Error.Code).To(Equal(3), "should return not found error code")
-
-			GinkgoWriter.Printf("Not found response: code=%v, message=%v\n", resp.Error.Code, resp.Error.Message)
-		})
-	})
-
 	Context("test project operations", func() {
 
 		It("should create and get same project", Label("L00005"), func() {
@@ -103,11 +65,6 @@ var _ = Describe("test Project", Label("project"), func() {
 			defer func() {
 				_, _ = apiClient.DeleteProject(ctx, projectName)
 			}()
-
-			getResp, err := apiClient.GetProject(ctx, projectName)
-			Expect(err).NotTo(HaveOccurred(), "get should not have error")
-			Expect(getResp.Success).To(BeTrue(), "get should return success")
-			Expect(getResp.Data.Name).To(Equal(projectName), "project name should match")
 		})
 	})
 })

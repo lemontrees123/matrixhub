@@ -17,7 +17,6 @@ export enum ProjectType {
 }
 
 export enum MemberType {
-  MEMBER_TYPE_UNSPECIFIED = "MEMBER_TYPE_UNSPECIFIED",
   MEMBER_TYPE_USER = "MEMBER_TYPE_USER",
   MEMBER_TYPE_GROUP = "MEMBER_TYPE_GROUP",
 }
@@ -26,15 +25,16 @@ export type CreateProjectRequest = {
   name?: string
   type?: ProjectType
   registryId?: GoogleProtobufWrappers.Int32Value
+  organization?: string
 }
 
 export type CreateProjectResponse = {
-  projectId?: number
 }
 
 export type ListProjectsRequest = {
   name?: string
   type?: ProjectType
+  managedOnly?: boolean
   page?: number
   pageSize?: number
 }
@@ -50,17 +50,20 @@ export type GetProjectRequest = {
 
 export type GetProjectResponse = {
   name?: string
+  type?: ProjectType
+  registryUrl?: string
+  organization?: string
 }
 
 export type DeleteProjectRequest = {
-  id?: number
+  name?: string
 }
 
 export type DeleteProjectResponse = {
 }
 
 export type UpdateProjectRequest = {
-  id?: number
+  name?: string
   type?: ProjectType
 }
 
@@ -68,16 +71,17 @@ export type UpdateProjectResponse = {
 }
 
 export type Project = {
-  id?: number
   name?: string
   type?: ProjectType
-  registryId?: GoogleProtobufWrappers.Int32Value
+  enabledRegistry?: boolean
+  modelCount?: number
+  datasetCount?: number
   updatedAt?: GoogleProtobufTimestamp.Timestamp
 }
 
 export type ListProjectMembersRequest = {
-  projectId?: number
-  username?: string
+  name?: string
+  memberName?: string
   page?: number
   pageSize?: number
 }
@@ -88,24 +92,24 @@ export type ListProjectMembersResponse = {
 }
 
 export type ProjectMember = {
-  userId?: string
-  username?: string
+  memberId?: string
+  memberName?: string
   memberType?: MemberType
-  role?: MatrixhubV1alpha1Role.RoleInfo
+  role?: MatrixhubV1alpha1Role.ProjectRoleType
 }
 
 export type AddProjectMemberWithRoleRequest = {
-  projectId?: number
+  name?: string
   memberType?: MemberType
   memberId?: string
-  roleId?: number
+  role?: MatrixhubV1alpha1Role.ProjectRoleType
 }
 
 export type AddProjectMemberWithRoleResponse = {
 }
 
-export type RemoveProjectMemberRequest = {
-  projectId?: number
+export type RemoveProjectMembersRequest = {
+  name?: string
   members?: MemberToRemove[]
 }
 
@@ -114,14 +118,14 @@ export type MemberToRemove = {
   memberId?: string
 }
 
-export type RemoveProjectMemberResponse = {
+export type RemoveProjectMembersResponse = {
 }
 
 export type UpdateProjectMemberRoleRequest = {
-  projectId?: number
+  name?: string
   memberType?: MemberType
   memberId?: string
-  roleId?: number
+  role?: MatrixhubV1alpha1Role.ProjectRoleType
 }
 
 export type UpdateProjectMemberRoleResponse = {
@@ -138,21 +142,21 @@ export class Projects {
     return fm.fetchReq<GetProjectRequest, GetProjectResponse>(`/api/v1alpha1/projects/${req["name"]}?${fm.renderURLSearchParams(req, ["name"])}`, {...initReq, method: "GET"})
   }
   static UpdateProject(req: UpdateProjectRequest, initReq?: fm.InitReq): Promise<UpdateProjectResponse> {
-    return fm.fetchReq<UpdateProjectRequest, UpdateProjectResponse>(`/api/v1alpha1/projects/${req["id"]}`, {...initReq, method: "PUT", body: JSON.stringify(req, fm.replacer)})
+    return fm.fetchReq<UpdateProjectRequest, UpdateProjectResponse>(`/api/v1alpha1/projects/${req["name"]}`, {...initReq, method: "PUT", body: JSON.stringify(req, fm.replacer)})
   }
   static DeleteProject(req: DeleteProjectRequest, initReq?: fm.InitReq): Promise<DeleteProjectResponse> {
-    return fm.fetchReq<DeleteProjectRequest, DeleteProjectResponse>(`/api/v1alpha1/projects/${req["id"]}`, {...initReq, method: "DELETE"})
+    return fm.fetchReq<DeleteProjectRequest, DeleteProjectResponse>(`/api/v1alpha1/projects/${req["name"]}`, {...initReq, method: "DELETE"})
   }
   static ListProjectMembers(req: ListProjectMembersRequest, initReq?: fm.InitReq): Promise<ListProjectMembersResponse> {
-    return fm.fetchReq<ListProjectMembersRequest, ListProjectMembersResponse>(`/api/v1alpha1/projects/${req["projectId"]}/members?${fm.renderURLSearchParams(req, ["projectId"])}`, {...initReq, method: "GET"})
+    return fm.fetchReq<ListProjectMembersRequest, ListProjectMembersResponse>(`/api/v1alpha1/projects/${req["name"]}/members?${fm.renderURLSearchParams(req, ["name"])}`, {...initReq, method: "GET"})
   }
   static AddProjectMemberWithRole(req: AddProjectMemberWithRoleRequest, initReq?: fm.InitReq): Promise<AddProjectMemberWithRoleResponse> {
-    return fm.fetchReq<AddProjectMemberWithRoleRequest, AddProjectMemberWithRoleResponse>(`/api/v1alpha1/projects/${req["projectId"]}/member`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+    return fm.fetchReq<AddProjectMemberWithRoleRequest, AddProjectMemberWithRoleResponse>(`/api/v1alpha1/projects/${req["name"]}/members`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
-  static RemoveProjectMember(req: RemoveProjectMemberRequest, initReq?: fm.InitReq): Promise<RemoveProjectMemberResponse> {
-    return fm.fetchReq<RemoveProjectMemberRequest, RemoveProjectMemberResponse>(`/api/v1alpha1/projects/${req["projectId"]}/members`, {...initReq, method: "DELETE"})
+  static RemoveProjectMembers(req: RemoveProjectMembersRequest, initReq?: fm.InitReq): Promise<RemoveProjectMembersResponse> {
+    return fm.fetchReq<RemoveProjectMembersRequest, RemoveProjectMembersResponse>(`/api/v1alpha1/projects/${req["name"]}/members`, {...initReq, method: "DELETE", body: JSON.stringify(req, fm.replacer)})
   }
   static UpdateProjectMemberRole(req: UpdateProjectMemberRoleRequest, initReq?: fm.InitReq): Promise<UpdateProjectMemberRoleResponse> {
-    return fm.fetchReq<UpdateProjectMemberRoleRequest, UpdateProjectMemberRoleResponse>(`/api/v1alpha1/projects/${req["projectId"]}/member/role`, {...initReq, method: "PUT", body: JSON.stringify(req, fm.replacer)})
+    return fm.fetchReq<UpdateProjectMemberRoleRequest, UpdateProjectMemberRoleResponse>(`/api/v1alpha1/projects/${req["name"]}/members/${req["memberId"]}/role`, {...initReq, method: "PUT", body: JSON.stringify(req, fm.replacer)})
   }
 }

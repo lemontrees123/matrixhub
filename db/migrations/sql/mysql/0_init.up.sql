@@ -1,13 +1,32 @@
-CREATE TABLE IF NOT EXISTS `projects`
+CREATE TABLE IF NOT EXISTS `registries`
 (
-    `id`          int       NOT NULL AUTO_INCREMENT,
-    `name`        varchar(64)        DEFAULT "",
-    `type`        tinyint   NOT NULL DEFAULT 0,
-    `registry_id` int                DEFAULT NULL,
-    `created_at`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`  timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `id`              int          NOT NULL AUTO_INCREMENT,
+    `name`            varchar(64)  NOT NULL,
+    `description`     text         NOT NULL,
+    `type`            varchar(64)  NOT NULL,              -- registry provider (huggingface, etc.)
+    `url`             varchar(255) NOT NULL,
+    `credential_type` varchar(255)          DEFAULT NULL, -- ('basic', 'oauth', 'secret')
+    `auth_info`       text,
+    `insecure`        tinyint(1)   NOT NULL DEFAULT '0',  -- skip SSL verification (0 for False, 1 for True)
+    `status`          int          NOT NULL,              -- status (healthy, unhealthy, unknown)
+    `created_at`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `name` (`name`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `projects`
+(
+    `id`           int       NOT NULL AUTO_INCREMENT,
+    `name`         varchar(64)        DEFAULT "",
+    `type`         tinyint   NOT NULL DEFAULT 0,
+    `registry_id`  int                DEFAULT NULL,
+    `organization` varchar(64)        DEFAULT "",
+    `created_at`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`   timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `name` (`name`),
+    CONSTRAINT `fk_projects_registry_id` FOREIGN KEY (`registry_id`) REFERENCES `registries` (`id`)
 ) ENGINE = InnoDb DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `users`
@@ -26,7 +45,6 @@ CREATE TABLE IF NOT EXISTS `roles`
 (
     `id`           int         NOT NULL AUTO_INCREMENT,
     `name`         varchar(64) NOT NULL,
-    `display_name` varchar(64) NOT NULL,
     `permissions`  text        NOT NULL,
     `scope`        varchar(64) NOT NULL,
     `created_at`   timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -40,13 +58,15 @@ CREATE TABLE IF NOT EXISTS `members_roles_projects`
     `id`          int         NOT NULL AUTO_INCREMENT,
     `member_id`   varchar(64) NOT NULL,
     `member_type` varchar(64) NOT NULL,
-    `role_id`     varchar(64) NOT NULL,
-    `project_id`  int         NOT NULL,
+    `role_id`     int         DEFAULT NULL,
+    `project_id`  int         DEFAULT NULL,
     `created_at`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at`  timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     INDEX `project_id_index` (`project_id`),
-    UNIQUE KEY `composite_index` (`member_id`, `member_type`, `role_id`, `project_id`)
+    UNIQUE KEY `composite_index` (`member_id`, `member_type`, `role_id`, `project_id`),
+    CONSTRAINT `fk_members_roles_projects_project_id` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_members_roles_projects_role_id` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `models`
@@ -95,23 +115,6 @@ CREATE TABLE IF NOT EXISTS `datasets`
     `project_id` int         NOT NULL,
     `created_at` timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `updated_at` timestamp   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
-    KEY `name` (`name`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
-
-CREATE TABLE IF NOT EXISTS `registries`
-(
-    `id`              int          NOT NULL AUTO_INCREMENT,
-    `name`            varchar(64)  NOT NULL,
-    `description`     text         NOT NULL,
-    `type`            varchar(64)  NOT NULL,              -- registry provider (huggingface, etc.)
-    `url`             varchar(255) NOT NULL,
-    `credential_type` varchar(255)          DEFAULT NULL, -- ('basic', 'oauth', 'secret')
-    `auth_info`       text,
-    `insecure`        tinyint(1)   NOT NULL DEFAULT '0',  -- skip SSL verification (0 for False, 1 for True)
-    `status`          int          NOT NULL,              -- status (healthy, unhealthy, unknown)
-    `created_at`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`      timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `name` (`name`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;

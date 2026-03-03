@@ -521,8 +521,8 @@ func (*GetProjectRolesRequest) Descriptor() ([]byte, []int) {
 }
 
 type GetProjectRolesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ProjectRoles  map[string]string      `protobuf:"bytes,1,rep,name=project_roles,json=projectRoles,proto3" json:"project_roles,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	ProjectRoles  map[string]ProjectRoleType `protobuf:"bytes,1,rep,name=project_roles,json=projectRoles,proto3" json:"project_roles,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value,enum=matrixhub.v1alpha1.ProjectRoleType"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -557,18 +557,114 @@ func (*GetProjectRolesResponse) Descriptor() ([]byte, []int) {
 	return file_v1alpha1_current_user_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *GetProjectRolesResponse) GetProjectRoles() map[string]string {
+func (x *GetProjectRolesResponse) GetProjectRoles() map[string]ProjectRoleType {
 	if x != nil {
 		return x.ProjectRoles
 	}
 	return nil
 }
 
+type GetCurrentUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCurrentUserRequest) Reset() {
+	*x = GetCurrentUserRequest{}
+	mi := &file_v1alpha1_current_user_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCurrentUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCurrentUserRequest) ProtoMessage() {}
+
+func (x *GetCurrentUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_v1alpha1_current_user_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCurrentUserRequest.ProtoReflect.Descriptor instead.
+func (*GetCurrentUserRequest) Descriptor() ([]byte, []int) {
+	return file_v1alpha1_current_user_proto_rawDescGZIP(), []int{11}
+}
+
+type GetCurrentUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	IsAdmin       bool                   `protobuf:"varint,3,opt,name=is_admin,json=isAdmin,proto3" json:"is_admin,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCurrentUserResponse) Reset() {
+	*x = GetCurrentUserResponse{}
+	mi := &file_v1alpha1_current_user_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCurrentUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCurrentUserResponse) ProtoMessage() {}
+
+func (x *GetCurrentUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_v1alpha1_current_user_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCurrentUserResponse.ProtoReflect.Descriptor instead.
+func (*GetCurrentUserResponse) Descriptor() ([]byte, []int) {
+	return file_v1alpha1_current_user_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetCurrentUserResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *GetCurrentUserResponse) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *GetCurrentUserResponse) GetIsAdmin() bool {
+	if x != nil {
+		return x.IsAdmin
+	}
+	return false
+}
+
 var File_v1alpha1_current_user_proto protoreflect.FileDescriptor
 
 const file_v1alpha1_current_user_proto_rawDesc = "" +
 	"\n" +
-	"\x1bv1alpha1/current_user.proto\x12\x12matrixhub.v1alpha1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\"n\n" +
+	"\x1bv1alpha1/current_user.proto\x12\x12matrixhub.v1alpha1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\x1a\x13v1alpha1/role.proto\"n\n" +
 	"\x14ResetPasswordRequest\x12*\n" +
 	"\fold_password\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voldPassword\x12*\n" +
 	"\fnew_password\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vnewPassword\"\x17\n" +
@@ -592,22 +688,28 @@ const file_v1alpha1_current_user_proto_rawDesc = "" +
 	"\x18DeleteAccessTokenRequest\x12\x18\n" +
 	"\x02id\x18\x01 \x01(\tB\b\xfaB\x05r\x03\xb0\x01\x01R\x02id\"\x1b\n" +
 	"\x19DeleteAccessTokenResponse\"\x18\n" +
-	"\x16GetProjectRolesRequest\"\xbe\x01\n" +
+	"\x16GetProjectRolesRequest\"\xe3\x01\n" +
 	"\x17GetProjectRolesResponse\x12b\n" +
-	"\rproject_roles\x18\x01 \x03(\v2=.matrixhub.v1alpha1.GetProjectRolesResponse.ProjectRolesEntryR\fprojectRoles\x1a?\n" +
+	"\rproject_roles\x18\x01 \x03(\v2=.matrixhub.v1alpha1.GetProjectRolesResponse.ProjectRolesEntryR\fprojectRoles\x1ad\n" +
 	"\x11ProjectRolesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01*t\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x129\n" +
+	"\x05value\x18\x02 \x01(\x0e2#.matrixhub.v1alpha1.ProjectRoleTypeR\x05value:\x028\x01\"\x17\n" +
+	"\x15GetCurrentUserRequest\"_\n" +
+	"\x16GetCurrentUserResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
+	"\busername\x18\x02 \x01(\tR\busername\x12\x19\n" +
+	"\bis_admin\x18\x03 \x01(\bR\aisAdmin*t\n" +
 	"\x11AccessTokenStatus\x12\x1f\n" +
 	"\x1bACCESS_TOKEN_STATUS_UNKNOWN\x10\x00\x12\x1d\n" +
 	"\x19ACCESS_TOKEN_STATUS_VALID\x10\x01\x12\x1f\n" +
-	"\x1bACCESS_TOKEN_STATUS_EXPIRED\x10\x022\xb9\x06\n" +
-	"\vCurrentUser\x12\x9a\x01\n" +
+	"\x1bACCESS_TOKEN_STATUS_EXPIRED\x10\x022\xcd\a\n" +
+	"\vCurrentUser\x12\x8b\x01\n" +
+	"\x0eGetCurrentUser\x12).matrixhub.v1alpha1.GetCurrentUserRequest\x1a*.matrixhub.v1alpha1.GetCurrentUserResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1alpha1/current-user\x12\x9a\x01\n" +
 	"\rResetPassword\x12(.matrixhub.v1alpha1.ResetPasswordRequest\x1a).matrixhub.v1alpha1.ResetPasswordResponse\"4\x82\xd3\xe4\x93\x02.:\x01*\")/api/v1alpha1/current-user/reset-password\x12\x9f\x01\n" +
 	"\x10ListAccessTokens\x12+.matrixhub.v1alpha1.ListAccessTokensRequest\x1a,.matrixhub.v1alpha1.ListAccessTokensResponse\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1alpha1/current-user/access-tokens\x12\xa6\x01\n" +
 	"\x11CreateAccessToken\x12,.matrixhub.v1alpha1.CreateAccessTokenRequest\x1a-.matrixhub.v1alpha1.CreateAccessTokenResponse\"4\x82\xd3\xe4\x93\x02.:\x01*\")/apis/v1alpha1/current-user/access-tokens\x12\xa8\x01\n" +
-	"\x11DeleteAccessToken\x12,.matrixhub.v1alpha1.DeleteAccessTokenRequest\x1a-.matrixhub.v1alpha1.DeleteAccessTokenResponse\"6\x82\xd3\xe4\x93\x020*./apis/v1alpha1/current-user/access-tokens/{id}\x12\x96\x01\n" +
-	"\x0fGetProjectRoles\x12*.matrixhub.v1alpha1.GetProjectRolesRequest\x1a+.matrixhub.v1alpha1.GetProjectRolesResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/v1alpha1/users/projects/rolesB<Z:github.com/matrixhub-ai/matrixhub/api/go/v1alpha1;v1alpha1b\x06proto3"
+	"\x11DeleteAccessToken\x12,.matrixhub.v1alpha1.DeleteAccessTokenRequest\x1a-.matrixhub.v1alpha1.DeleteAccessTokenResponse\"6\x82\xd3\xe4\x93\x020*./apis/v1alpha1/current-user/access-tokens/{id}\x12\x9c\x01\n" +
+	"\x0fGetProjectRoles\x12*.matrixhub.v1alpha1.GetProjectRolesRequest\x1a+.matrixhub.v1alpha1.GetProjectRolesResponse\"0\x82\xd3\xe4\x93\x02*\x12(/api/v1alpha1/current-user/projects/roleB<Z:github.com/matrixhub-ai/matrixhub/api/go/v1alpha1;v1alpha1b\x06proto3"
 
 var (
 	file_v1alpha1_current_user_proto_rawDescOnce sync.Once
@@ -622,7 +724,7 @@ func file_v1alpha1_current_user_proto_rawDescGZIP() []byte {
 }
 
 var file_v1alpha1_current_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_v1alpha1_current_user_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_v1alpha1_current_user_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_v1alpha1_current_user_proto_goTypes = []any{
 	(AccessTokenStatus)(0),            // 0: matrixhub.v1alpha1.AccessTokenStatus
 	(*ResetPasswordRequest)(nil),      // 1: matrixhub.v1alpha1.ResetPasswordRequest
@@ -636,27 +738,33 @@ var file_v1alpha1_current_user_proto_goTypes = []any{
 	(*DeleteAccessTokenResponse)(nil), // 9: matrixhub.v1alpha1.DeleteAccessTokenResponse
 	(*GetProjectRolesRequest)(nil),    // 10: matrixhub.v1alpha1.GetProjectRolesRequest
 	(*GetProjectRolesResponse)(nil),   // 11: matrixhub.v1alpha1.GetProjectRolesResponse
-	nil,                               // 12: matrixhub.v1alpha1.GetProjectRolesResponse.ProjectRolesEntry
+	(*GetCurrentUserRequest)(nil),     // 12: matrixhub.v1alpha1.GetCurrentUserRequest
+	(*GetCurrentUserResponse)(nil),    // 13: matrixhub.v1alpha1.GetCurrentUserResponse
+	nil,                               // 14: matrixhub.v1alpha1.GetProjectRolesResponse.ProjectRolesEntry
+	(ProjectRoleType)(0),              // 15: matrixhub.v1alpha1.ProjectRoleType
 }
 var file_v1alpha1_current_user_proto_depIdxs = []int32{
 	5,  // 0: matrixhub.v1alpha1.ListAccessTokensResponse.items:type_name -> matrixhub.v1alpha1.AccessToken
 	0,  // 1: matrixhub.v1alpha1.AccessToken.status:type_name -> matrixhub.v1alpha1.AccessTokenStatus
-	12, // 2: matrixhub.v1alpha1.GetProjectRolesResponse.project_roles:type_name -> matrixhub.v1alpha1.GetProjectRolesResponse.ProjectRolesEntry
-	1,  // 3: matrixhub.v1alpha1.CurrentUser.ResetPassword:input_type -> matrixhub.v1alpha1.ResetPasswordRequest
-	3,  // 4: matrixhub.v1alpha1.CurrentUser.ListAccessTokens:input_type -> matrixhub.v1alpha1.ListAccessTokensRequest
-	6,  // 5: matrixhub.v1alpha1.CurrentUser.CreateAccessToken:input_type -> matrixhub.v1alpha1.CreateAccessTokenRequest
-	8,  // 6: matrixhub.v1alpha1.CurrentUser.DeleteAccessToken:input_type -> matrixhub.v1alpha1.DeleteAccessTokenRequest
-	10, // 7: matrixhub.v1alpha1.CurrentUser.GetProjectRoles:input_type -> matrixhub.v1alpha1.GetProjectRolesRequest
-	2,  // 8: matrixhub.v1alpha1.CurrentUser.ResetPassword:output_type -> matrixhub.v1alpha1.ResetPasswordResponse
-	4,  // 9: matrixhub.v1alpha1.CurrentUser.ListAccessTokens:output_type -> matrixhub.v1alpha1.ListAccessTokensResponse
-	7,  // 10: matrixhub.v1alpha1.CurrentUser.CreateAccessToken:output_type -> matrixhub.v1alpha1.CreateAccessTokenResponse
-	9,  // 11: matrixhub.v1alpha1.CurrentUser.DeleteAccessToken:output_type -> matrixhub.v1alpha1.DeleteAccessTokenResponse
-	11, // 12: matrixhub.v1alpha1.CurrentUser.GetProjectRoles:output_type -> matrixhub.v1alpha1.GetProjectRolesResponse
-	8,  // [8:13] is the sub-list for method output_type
-	3,  // [3:8] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	14, // 2: matrixhub.v1alpha1.GetProjectRolesResponse.project_roles:type_name -> matrixhub.v1alpha1.GetProjectRolesResponse.ProjectRolesEntry
+	15, // 3: matrixhub.v1alpha1.GetProjectRolesResponse.ProjectRolesEntry.value:type_name -> matrixhub.v1alpha1.ProjectRoleType
+	12, // 4: matrixhub.v1alpha1.CurrentUser.GetCurrentUser:input_type -> matrixhub.v1alpha1.GetCurrentUserRequest
+	1,  // 5: matrixhub.v1alpha1.CurrentUser.ResetPassword:input_type -> matrixhub.v1alpha1.ResetPasswordRequest
+	3,  // 6: matrixhub.v1alpha1.CurrentUser.ListAccessTokens:input_type -> matrixhub.v1alpha1.ListAccessTokensRequest
+	6,  // 7: matrixhub.v1alpha1.CurrentUser.CreateAccessToken:input_type -> matrixhub.v1alpha1.CreateAccessTokenRequest
+	8,  // 8: matrixhub.v1alpha1.CurrentUser.DeleteAccessToken:input_type -> matrixhub.v1alpha1.DeleteAccessTokenRequest
+	10, // 9: matrixhub.v1alpha1.CurrentUser.GetProjectRoles:input_type -> matrixhub.v1alpha1.GetProjectRolesRequest
+	13, // 10: matrixhub.v1alpha1.CurrentUser.GetCurrentUser:output_type -> matrixhub.v1alpha1.GetCurrentUserResponse
+	2,  // 11: matrixhub.v1alpha1.CurrentUser.ResetPassword:output_type -> matrixhub.v1alpha1.ResetPasswordResponse
+	4,  // 12: matrixhub.v1alpha1.CurrentUser.ListAccessTokens:output_type -> matrixhub.v1alpha1.ListAccessTokensResponse
+	7,  // 13: matrixhub.v1alpha1.CurrentUser.CreateAccessToken:output_type -> matrixhub.v1alpha1.CreateAccessTokenResponse
+	9,  // 14: matrixhub.v1alpha1.CurrentUser.DeleteAccessToken:output_type -> matrixhub.v1alpha1.DeleteAccessTokenResponse
+	11, // 15: matrixhub.v1alpha1.CurrentUser.GetProjectRoles:output_type -> matrixhub.v1alpha1.GetProjectRolesResponse
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_v1alpha1_current_user_proto_init() }
@@ -664,13 +772,14 @@ func file_v1alpha1_current_user_proto_init() {
 	if File_v1alpha1_current_user_proto != nil {
 		return
 	}
+	file_v1alpha1_role_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_v1alpha1_current_user_proto_rawDesc), len(file_v1alpha1_current_user_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   12,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

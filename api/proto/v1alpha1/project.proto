@@ -30,34 +30,35 @@ service Projects {
   }
   rpc UpdateProject(UpdateProjectRequest) returns (UpdateProjectResponse) {
     option (google.api.http) = {
-      put: "/api/v1alpha1/projects/{id}"
+      put: "/api/v1alpha1/projects/{name}"
       body: "*"
     };
   }
   rpc DeleteProject(DeleteProjectRequest) returns (DeleteProjectResponse) {
     option (google.api.http) = {
-      delete: "/api/v1alpha1/projects/{id}"
+      delete: "/api/v1alpha1/projects/{name}"
     };
   }
   rpc ListProjectMembers(ListProjectMembersRequest) returns (ListProjectMembersResponse) {
     option (google.api.http) = {
-      get: "/api/v1alpha1/projects/{project_id}/members"
+      get: "/api/v1alpha1/projects/{name}/members"
     };
   }
   rpc AddProjectMemberWithRole(AddProjectMemberWithRoleRequest) returns (AddProjectMemberWithRoleResponse) {
     option (google.api.http) = {
-      post: "/api/v1alpha1/projects/{project_id}/member"
+      post: "/api/v1alpha1/projects/{name}/members"
       body: "*"
     };
   }
-  rpc RemoveProjectMember(RemoveProjectMemberRequest) returns (RemoveProjectMemberResponse) {
+  rpc RemoveProjectMembers(RemoveProjectMembersRequest) returns (RemoveProjectMembersResponse) {
     option (google.api.http) = {
-      delete: "/api/v1alpha1/projects/{project_id}/members"
+      delete: "/api/v1alpha1/projects/{name}/members"
+      body: "*"
     };
   }
   rpc UpdateProjectMemberRole(UpdateProjectMemberRoleRequest) returns (UpdateProjectMemberRoleResponse) {
     option (google.api.http) = {
-      put: "/api/v1alpha1/projects/{project_id}/member/role"
+      put: "/api/v1alpha1/projects/{name}/members/{member_id}/role"
       body: "*"
     };
   }
@@ -70,17 +71,18 @@ message CreateProjectRequest {
   }];
   ProjectType type = 2;
   google.protobuf.Int32Value registry_id = 3;
+  string organization = 4;
 }
 
 message CreateProjectResponse {
-  int32 project_id = 1;
 }
 
 message ListProjectsRequest {
   string name = 1;
   ProjectType type = 2;
-  uint32 page = 3;
-  uint32 page_size = 4;
+  bool managed_only = 3;
+  uint32 page = 4;
+  uint32 page_size = 5;
 }
 
 message ListProjectsResponse {
@@ -89,21 +91,24 @@ message ListProjectsResponse {
 }
 
 message GetProjectRequest {
-  string name = 1;
+  string name = 1 [(validate.rules).string.min_len = 1];
 }
 
 message GetProjectResponse {
   string name = 1;
+  ProjectType type = 2;
+  string registry_url = 3;
+  string organization = 4;
 }
 
 message DeleteProjectRequest {
-  int32 id = 1 [(validate.rules).int32.gt = 0];
+  string name = 1 [(validate.rules).string.min_len = 1];
 }
 
 message DeleteProjectResponse {}
 
 message UpdateProjectRequest {
-  int32 id = 1 [(validate.rules).int32.gt = 0];
+  string name = 1 [(validate.rules).string.min_len = 1];
   ProjectType type = 2;
 }
 
@@ -111,11 +116,12 @@ message UpdateProjectResponse {
 }
 
 message Project {
-  int32 id = 1;
-  string name = 2;
-  ProjectType type = 3;
-  google.protobuf.Int32Value registry_id = 4;
-  google.protobuf.Timestamp updated_at = 5;
+  string name = 1;
+  ProjectType type = 2;
+  bool enabled_registry = 3;
+  uint32 model_count = 4;
+  uint32 dataset_count = 5;
+  google.protobuf.Timestamp updated_at = 6;
 }
 
 enum ProjectType {
@@ -125,8 +131,8 @@ enum ProjectType {
 }
 
 message ListProjectMembersRequest {
-  int32 project_id = 1 [(validate.rules).int32.gt = 0];
-  string username = 2;
+  string name = 1[(validate.rules).string.min_len = 1];
+  string member_name = 2[(validate.rules).string.min_len = 1];
   int32 page = 3;
   int32 page_size = 4;
 }
@@ -137,29 +143,28 @@ message ListProjectMembersResponse {
 }
 
 message ProjectMember {
-  string user_id = 1;
-  string username = 2;
+  string member_id = 1;
+  string member_name = 2;
   MemberType member_type = 3;
-  RoleInfo role = 4;
+  ProjectRoleType role = 4;
 }
 
 enum MemberType {
-  MEMBER_TYPE_UNSPECIFIED = 0;
-  MEMBER_TYPE_USER = 1;
-  MEMBER_TYPE_GROUP = 2;
+  MEMBER_TYPE_USER = 0;
+  MEMBER_TYPE_GROUP = 1;
 }
 
 message AddProjectMemberWithRoleRequest {
-  int32 project_id = 1 [(validate.rules).int32.gt = 0];
+  string name = 1 [(validate.rules).string.min_len = 1];
   MemberType member_type = 2 [(validate.rules).enum.defined_only = true];
   string member_id = 3 [(validate.rules).string.min_len = 1];
-  int32 role_id = 4 [(validate.rules).int32.gt = 0];
+  ProjectRoleType role = 4 [(validate.rules).enum.defined_only = true];
 }
 
 message AddProjectMemberWithRoleResponse {}
 
-message RemoveProjectMemberRequest {
-  int32 project_id = 1 [(validate.rules).int32.gt = 0];
+message RemoveProjectMembersRequest {
+  string name = 1 [(validate.rules).string.min_len = 1];
   repeated MemberToRemove members = 2;
 }
 
@@ -168,15 +173,13 @@ message MemberToRemove {
   string member_id = 2 [(validate.rules).string.min_len = 1];
 }
 
-message RemoveProjectMemberResponse {}
+message RemoveProjectMembersResponse {}
 
 message UpdateProjectMemberRoleRequest {
-  int32 project_id = 1 [(validate.rules).int32.gt = 0];
+  string name = 1 [(validate.rules).string.min_len = 1];
   MemberType member_type = 2 [(validate.rules).enum.defined_only = true];
   string member_id = 3 [(validate.rules).string.min_len = 1];
-  int32 role_id = 4 [(validate.rules).int32.gt = 0];
+  ProjectRoleType role = 4 [(validate.rules).enum.defined_only = true];
 }
 
 message UpdateProjectMemberRoleResponse {}
-
-

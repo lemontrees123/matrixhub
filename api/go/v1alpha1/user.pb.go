@@ -11,6 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -23,11 +24,61 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// UserSource defines the source of user
+type UserSource int32
+
+const (
+	UserSource_USER_SOURCE_UNSPECIFIED UserSource = 0
+	UserSource_USER_SOURCE_LOCAL       UserSource = 1
+)
+
+// Enum value maps for UserSource.
+var (
+	UserSource_name = map[int32]string{
+		0: "USER_SOURCE_UNSPECIFIED",
+		1: "USER_SOURCE_LOCAL",
+	}
+	UserSource_value = map[string]int32{
+		"USER_SOURCE_UNSPECIFIED": 0,
+		"USER_SOURCE_LOCAL":       1,
+	}
+)
+
+func (x UserSource) Enum() *UserSource {
+	p := new(UserSource)
+	*p = x
+	return p
+}
+
+func (x UserSource) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (UserSource) Descriptor() protoreflect.EnumDescriptor {
+	return file_v1alpha1_user_proto_enumTypes[0].Descriptor()
+}
+
+func (UserSource) Type() protoreflect.EnumType {
+	return &file_v1alpha1_user_proto_enumTypes[0]
+}
+
+func (x UserSource) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use UserSource.Descriptor instead.
+func (UserSource) EnumDescriptor() ([]byte, []int) {
+	return file_v1alpha1_user_proto_rawDescGZIP(), []int{0}
+}
+
 type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Username      string                 `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
 	Email         string                 `protobuf:"bytes,3,opt,name=email,proto3" json:"email,omitempty"`
+	IsAdmin       bool                   `protobuf:"varint,4,opt,name=is_admin,json=isAdmin,proto3" json:"is_admin,omitempty"`
+	Source        UserSource             `protobuf:"varint,5,opt,name=source,proto3,enum=matrixhub.v1alpha1.UserSource" json:"source,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -83,11 +134,32 @@ func (x *User) GetEmail() string {
 	return ""
 }
 
+func (x *User) GetIsAdmin() bool {
+	if x != nil {
+		return x.IsAdmin
+	}
+	return false
+}
+
+func (x *User) GetSource() UserSource {
+	if x != nil {
+		return x.Source
+	}
+	return UserSource_USER_SOURCE_UNSPECIFIED
+}
+
+func (x *User) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
 type CreateUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	Roles         []int32                `protobuf:"varint,3,rep,packed,name=roles,proto3" json:"roles,omitempty"`
+	IsAdmin       bool                   `protobuf:"varint,3,opt,name=is_admin,json=isAdmin,proto3" json:"is_admin,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -136,11 +208,11 @@ func (x *CreateUserRequest) GetPassword() string {
 	return ""
 }
 
-func (x *CreateUserRequest) GetRoles() []int32 {
+func (x *CreateUserRequest) GetIsAdmin() bool {
 	if x != nil {
-		return x.Roles
+		return x.IsAdmin
 	}
-	return nil
+	return false
 }
 
 type CreateUserResponse struct {
@@ -475,29 +547,28 @@ func (*DeleteUserResponse) Descriptor() ([]byte, []int) {
 	return file_v1alpha1_user_proto_rawDescGZIP(), []int{8}
 }
 
-type UpdateUserRolesRequest struct {
+type SetUserSysAdminRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	AddRoles      []int32                `protobuf:"varint,2,rep,packed,name=add_roles,json=addRoles,proto3" json:"add_roles,omitempty"`
-	RemoveRoles   []int32                `protobuf:"varint,3,rep,packed,name=remove_roles,json=removeRoles,proto3" json:"remove_roles,omitempty"`
+	SysadminFlag  bool                   `protobuf:"varint,2,opt,name=sysadmin_flag,json=sysadminFlag,proto3" json:"sysadmin_flag,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateUserRolesRequest) Reset() {
-	*x = UpdateUserRolesRequest{}
+func (x *SetUserSysAdminRequest) Reset() {
+	*x = SetUserSysAdminRequest{}
 	mi := &file_v1alpha1_user_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateUserRolesRequest) String() string {
+func (x *SetUserSysAdminRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateUserRolesRequest) ProtoMessage() {}
+func (*SetUserSysAdminRequest) ProtoMessage() {}
 
-func (x *UpdateUserRolesRequest) ProtoReflect() protoreflect.Message {
+func (x *SetUserSysAdminRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_v1alpha1_user_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -509,52 +580,45 @@ func (x *UpdateUserRolesRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateUserRolesRequest.ProtoReflect.Descriptor instead.
-func (*UpdateUserRolesRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use SetUserSysAdminRequest.ProtoReflect.Descriptor instead.
+func (*SetUserSysAdminRequest) Descriptor() ([]byte, []int) {
 	return file_v1alpha1_user_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *UpdateUserRolesRequest) GetId() string {
+func (x *SetUserSysAdminRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *UpdateUserRolesRequest) GetAddRoles() []int32 {
+func (x *SetUserSysAdminRequest) GetSysadminFlag() bool {
 	if x != nil {
-		return x.AddRoles
+		return x.SysadminFlag
 	}
-	return nil
+	return false
 }
 
-func (x *UpdateUserRolesRequest) GetRemoveRoles() []int32 {
-	if x != nil {
-		return x.RemoveRoles
-	}
-	return nil
-}
-
-type UpdateUserRolesResponse struct {
+type SetUserSysAdminResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UpdateUserRolesResponse) Reset() {
-	*x = UpdateUserRolesResponse{}
+func (x *SetUserSysAdminResponse) Reset() {
+	*x = SetUserSysAdminResponse{}
 	mi := &file_v1alpha1_user_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UpdateUserRolesResponse) String() string {
+func (x *SetUserSysAdminResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UpdateUserRolesResponse) ProtoMessage() {}
+func (*SetUserSysAdminResponse) ProtoMessage() {}
 
-func (x *UpdateUserRolesResponse) ProtoReflect() protoreflect.Message {
+func (x *SetUserSysAdminResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_v1alpha1_user_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -566,8 +630,8 @@ func (x *UpdateUserRolesResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UpdateUserRolesResponse.ProtoReflect.Descriptor instead.
-func (*UpdateUserRolesResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use SetUserSysAdminResponse.ProtoReflect.Descriptor instead.
+func (*SetUserSysAdminResponse) Descriptor() ([]byte, []int) {
 	return file_v1alpha1_user_proto_rawDescGZIP(), []int{10}
 }
 
@@ -663,15 +727,19 @@ var File_v1alpha1_user_proto protoreflect.FileDescriptor
 
 const file_v1alpha1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x13v1alpha1/user.proto\x12\x12matrixhub.v1alpha1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\x1a\x14v1alpha1/utils.proto\"H\n" +
+	"\x13v1alpha1/user.proto\x12\x12matrixhub.v1alpha1\x1a\x1cgoogle/api/annotations.proto\x1a\x17validate/validate.proto\x1a\x14v1alpha1/utils.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xd6\x01\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\"s\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12\x19\n" +
+	"\bis_admin\x18\x04 \x01(\bR\aisAdmin\x126\n" +
+	"\x06source\x18\x05 \x01(\x0e2\x1e.matrixhub.v1alpha1.UserSourceR\x06source\x129\n" +
+	"\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"x\n" +
 	"\x11CreateUserRequest\x12#\n" +
 	"\busername\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12#\n" +
-	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\x12\x14\n" +
-	"\x05roles\x18\x03 \x03(\x05R\x05roles\"\x14\n" +
+	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\x12\x19\n" +
+	"\bis_admin\x18\x03 \x01(\bR\aisAdmin\"\x14\n" +
 	"\x12CreateUserResponse\"[\n" +
 	"\x10ListUsersRequest\x12\x12\n" +
 	"\x04page\x18\x01 \x01(\x05R\x04page\x12\x1b\n" +
@@ -690,16 +758,19 @@ const file_v1alpha1_user_proto_rawDesc = "" +
 	"\x05email\x18\x03 \x01(\tR\x05email\",\n" +
 	"\x11DeleteUserRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x02id\"\x14\n" +
-	"\x12DeleteUserResponse\"q\n" +
-	"\x16UpdateUserRolesRequest\x12\x17\n" +
-	"\x02id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x02id\x12\x1b\n" +
-	"\tadd_roles\x18\x02 \x03(\x05R\baddRoles\x12!\n" +
-	"\fremove_roles\x18\x03 \x03(\x05R\vremoveRoles\"\x19\n" +
-	"\x17UpdateUserRolesResponse\"X\n" +
+	"\x12DeleteUserResponse\"V\n" +
+	"\x16SetUserSysAdminRequest\x12\x17\n" +
+	"\x02id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x02id\x12#\n" +
+	"\rsysadmin_flag\x18\x02 \x01(\bR\fsysadminFlag\"\x19\n" +
+	"\x17SetUserSysAdminResponse\"X\n" +
 	"\x18ResetUserPasswordRequest\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x02id\x12#\n" +
 	"\bpassword\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\"\x1b\n" +
-	"\x19ResetUserPasswordResponse2\xb0\x06\n" +
+	"\x19ResetUserPasswordResponse*@\n" +
+	"\n" +
+	"UserSource\x12\x1b\n" +
+	"\x17USER_SOURCE_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11USER_SOURCE_LOCAL\x10\x012\xb3\x06\n" +
 	"\x05Users\x12u\n" +
 	"\tListUsers\x12$.matrixhub.v1alpha1.ListUsersRequest\x1a%.matrixhub.v1alpha1.ListUsersResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/v1alpha1/users\x12{\n" +
 	"\n" +
@@ -707,8 +778,8 @@ const file_v1alpha1_user_proto_rawDesc = "" +
 	"\aGetUser\x12\".matrixhub.v1alpha1.GetUserRequest\x1a#.matrixhub.v1alpha1.GetUserResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1alpha1/users/{id}\x12}\n" +
 	"\n" +
 	"DeleteUser\x12%.matrixhub.v1alpha1.DeleteUserRequest\x1a&.matrixhub.v1alpha1.DeleteUserResponse\" \x82\xd3\xe4\x93\x02\x1a*\x18/api/v1alpha1/users/{id}\x12\xa4\x01\n" +
-	"\x11ResetUserPassword\x12,.matrixhub.v1alpha1.ResetUserPasswordRequest\x1a-.matrixhub.v1alpha1.ResetUserPasswordResponse\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/v1alpha1/users/{id}/reset-password\x12\x96\x01\n" +
-	"\x0fUpdateUserRoles\x12*.matrixhub.v1alpha1.UpdateUserRolesRequest\x1a+.matrixhub.v1alpha1.UpdateUserRolesResponse\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/apis/v1alpha1/users/{id}/rolesB<Z:github.com/matrixhub-ai/matrixhub/api/go/v1alpha1;v1alpha1b\x06proto3"
+	"\x11ResetUserPassword\x12,.matrixhub.v1alpha1.ResetUserPasswordRequest\x1a-.matrixhub.v1alpha1.ResetUserPasswordResponse\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/v1alpha1/users/{id}/reset-password\x12\x99\x01\n" +
+	"\x0fSetUserSysAdmin\x12*.matrixhub.v1alpha1.SetUserSysAdminRequest\x1a+.matrixhub.v1alpha1.SetUserSysAdminResponse\"-\x82\xd3\xe4\x93\x02':\x01*\x1a\"/apis/v1alpha1/users/{id}/sysadminB<Z:github.com/matrixhub-ai/matrixhub/api/go/v1alpha1;v1alpha1b\x06proto3"
 
 var (
 	file_v1alpha1_user_proto_rawDescOnce sync.Once
@@ -722,43 +793,48 @@ func file_v1alpha1_user_proto_rawDescGZIP() []byte {
 	return file_v1alpha1_user_proto_rawDescData
 }
 
+var file_v1alpha1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_v1alpha1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_v1alpha1_user_proto_goTypes = []any{
-	(*User)(nil),                      // 0: matrixhub.v1alpha1.User
-	(*CreateUserRequest)(nil),         // 1: matrixhub.v1alpha1.CreateUserRequest
-	(*CreateUserResponse)(nil),        // 2: matrixhub.v1alpha1.CreateUserResponse
-	(*ListUsersRequest)(nil),          // 3: matrixhub.v1alpha1.ListUsersRequest
-	(*ListUsersResponse)(nil),         // 4: matrixhub.v1alpha1.ListUsersResponse
-	(*GetUserRequest)(nil),            // 5: matrixhub.v1alpha1.GetUserRequest
-	(*GetUserResponse)(nil),           // 6: matrixhub.v1alpha1.GetUserResponse
-	(*DeleteUserRequest)(nil),         // 7: matrixhub.v1alpha1.DeleteUserRequest
-	(*DeleteUserResponse)(nil),        // 8: matrixhub.v1alpha1.DeleteUserResponse
-	(*UpdateUserRolesRequest)(nil),    // 9: matrixhub.v1alpha1.UpdateUserRolesRequest
-	(*UpdateUserRolesResponse)(nil),   // 10: matrixhub.v1alpha1.UpdateUserRolesResponse
-	(*ResetUserPasswordRequest)(nil),  // 11: matrixhub.v1alpha1.ResetUserPasswordRequest
-	(*ResetUserPasswordResponse)(nil), // 12: matrixhub.v1alpha1.ResetUserPasswordResponse
-	(*Pagination)(nil),                // 13: matrixhub.v1alpha1.Pagination
+	(UserSource)(0),                   // 0: matrixhub.v1alpha1.UserSource
+	(*User)(nil),                      // 1: matrixhub.v1alpha1.User
+	(*CreateUserRequest)(nil),         // 2: matrixhub.v1alpha1.CreateUserRequest
+	(*CreateUserResponse)(nil),        // 3: matrixhub.v1alpha1.CreateUserResponse
+	(*ListUsersRequest)(nil),          // 4: matrixhub.v1alpha1.ListUsersRequest
+	(*ListUsersResponse)(nil),         // 5: matrixhub.v1alpha1.ListUsersResponse
+	(*GetUserRequest)(nil),            // 6: matrixhub.v1alpha1.GetUserRequest
+	(*GetUserResponse)(nil),           // 7: matrixhub.v1alpha1.GetUserResponse
+	(*DeleteUserRequest)(nil),         // 8: matrixhub.v1alpha1.DeleteUserRequest
+	(*DeleteUserResponse)(nil),        // 9: matrixhub.v1alpha1.DeleteUserResponse
+	(*SetUserSysAdminRequest)(nil),    // 10: matrixhub.v1alpha1.SetUserSysAdminRequest
+	(*SetUserSysAdminResponse)(nil),   // 11: matrixhub.v1alpha1.SetUserSysAdminResponse
+	(*ResetUserPasswordRequest)(nil),  // 12: matrixhub.v1alpha1.ResetUserPasswordRequest
+	(*ResetUserPasswordResponse)(nil), // 13: matrixhub.v1alpha1.ResetUserPasswordResponse
+	(*timestamppb.Timestamp)(nil),     // 14: google.protobuf.Timestamp
+	(*Pagination)(nil),                // 15: matrixhub.v1alpha1.Pagination
 }
 var file_v1alpha1_user_proto_depIdxs = []int32{
-	0,  // 0: matrixhub.v1alpha1.ListUsersResponse.users:type_name -> matrixhub.v1alpha1.User
-	13, // 1: matrixhub.v1alpha1.ListUsersResponse.pagination:type_name -> matrixhub.v1alpha1.Pagination
-	3,  // 2: matrixhub.v1alpha1.Users.ListUsers:input_type -> matrixhub.v1alpha1.ListUsersRequest
-	1,  // 3: matrixhub.v1alpha1.Users.CreateUser:input_type -> matrixhub.v1alpha1.CreateUserRequest
-	5,  // 4: matrixhub.v1alpha1.Users.GetUser:input_type -> matrixhub.v1alpha1.GetUserRequest
-	7,  // 5: matrixhub.v1alpha1.Users.DeleteUser:input_type -> matrixhub.v1alpha1.DeleteUserRequest
-	11, // 6: matrixhub.v1alpha1.Users.ResetUserPassword:input_type -> matrixhub.v1alpha1.ResetUserPasswordRequest
-	9,  // 7: matrixhub.v1alpha1.Users.UpdateUserRoles:input_type -> matrixhub.v1alpha1.UpdateUserRolesRequest
-	4,  // 8: matrixhub.v1alpha1.Users.ListUsers:output_type -> matrixhub.v1alpha1.ListUsersResponse
-	2,  // 9: matrixhub.v1alpha1.Users.CreateUser:output_type -> matrixhub.v1alpha1.CreateUserResponse
-	6,  // 10: matrixhub.v1alpha1.Users.GetUser:output_type -> matrixhub.v1alpha1.GetUserResponse
-	8,  // 11: matrixhub.v1alpha1.Users.DeleteUser:output_type -> matrixhub.v1alpha1.DeleteUserResponse
-	12, // 12: matrixhub.v1alpha1.Users.ResetUserPassword:output_type -> matrixhub.v1alpha1.ResetUserPasswordResponse
-	10, // 13: matrixhub.v1alpha1.Users.UpdateUserRoles:output_type -> matrixhub.v1alpha1.UpdateUserRolesResponse
-	8,  // [8:14] is the sub-list for method output_type
-	2,  // [2:8] is the sub-list for method input_type
-	2,  // [2:2] is the sub-list for extension type_name
-	2,  // [2:2] is the sub-list for extension extendee
-	0,  // [0:2] is the sub-list for field type_name
+	0,  // 0: matrixhub.v1alpha1.User.source:type_name -> matrixhub.v1alpha1.UserSource
+	14, // 1: matrixhub.v1alpha1.User.created_at:type_name -> google.protobuf.Timestamp
+	1,  // 2: matrixhub.v1alpha1.ListUsersResponse.users:type_name -> matrixhub.v1alpha1.User
+	15, // 3: matrixhub.v1alpha1.ListUsersResponse.pagination:type_name -> matrixhub.v1alpha1.Pagination
+	4,  // 4: matrixhub.v1alpha1.Users.ListUsers:input_type -> matrixhub.v1alpha1.ListUsersRequest
+	2,  // 5: matrixhub.v1alpha1.Users.CreateUser:input_type -> matrixhub.v1alpha1.CreateUserRequest
+	6,  // 6: matrixhub.v1alpha1.Users.GetUser:input_type -> matrixhub.v1alpha1.GetUserRequest
+	8,  // 7: matrixhub.v1alpha1.Users.DeleteUser:input_type -> matrixhub.v1alpha1.DeleteUserRequest
+	12, // 8: matrixhub.v1alpha1.Users.ResetUserPassword:input_type -> matrixhub.v1alpha1.ResetUserPasswordRequest
+	10, // 9: matrixhub.v1alpha1.Users.SetUserSysAdmin:input_type -> matrixhub.v1alpha1.SetUserSysAdminRequest
+	5,  // 10: matrixhub.v1alpha1.Users.ListUsers:output_type -> matrixhub.v1alpha1.ListUsersResponse
+	3,  // 11: matrixhub.v1alpha1.Users.CreateUser:output_type -> matrixhub.v1alpha1.CreateUserResponse
+	7,  // 12: matrixhub.v1alpha1.Users.GetUser:output_type -> matrixhub.v1alpha1.GetUserResponse
+	9,  // 13: matrixhub.v1alpha1.Users.DeleteUser:output_type -> matrixhub.v1alpha1.DeleteUserResponse
+	13, // 14: matrixhub.v1alpha1.Users.ResetUserPassword:output_type -> matrixhub.v1alpha1.ResetUserPasswordResponse
+	11, // 15: matrixhub.v1alpha1.Users.SetUserSysAdmin:output_type -> matrixhub.v1alpha1.SetUserSysAdminResponse
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_v1alpha1_user_proto_init() }
@@ -772,13 +848,14 @@ func file_v1alpha1_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_v1alpha1_user_proto_rawDesc), len(file_v1alpha1_user_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_v1alpha1_user_proto_goTypes,
 		DependencyIndexes: file_v1alpha1_user_proto_depIdxs,
+		EnumInfos:         file_v1alpha1_user_proto_enumTypes,
 		MessageInfos:      file_v1alpha1_user_proto_msgTypes,
 	}.Build()
 	File_v1alpha1_user_proto = out.File

@@ -5,6 +5,7 @@
 */
 
 import * as fm from "../fetch.pb"
+import * as MatrixhubV1alpha1Role from "./role.pb"
 
 export enum AccessTokenStatus {
   ACCESS_TOKEN_STATUS_UNKNOWN = "ACCESS_TOKEN_STATUS_UNKNOWN",
@@ -54,10 +55,22 @@ export type GetProjectRolesRequest = {
 }
 
 export type GetProjectRolesResponse = {
-  projectRoles?: {[key: string]: string}
+  projectRoles?: {[key: string]: MatrixhubV1alpha1Role.ProjectRoleType}
+}
+
+export type GetCurrentUserRequest = {
+}
+
+export type GetCurrentUserResponse = {
+  id?: string
+  username?: string
+  isAdmin?: boolean
 }
 
 export class CurrentUser {
+  static GetCurrentUser(req: GetCurrentUserRequest, initReq?: fm.InitReq): Promise<GetCurrentUserResponse> {
+    return fm.fetchReq<GetCurrentUserRequest, GetCurrentUserResponse>(`/api/v1alpha1/current-user?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+  }
   static ResetPassword(req: ResetPasswordRequest, initReq?: fm.InitReq): Promise<ResetPasswordResponse> {
     return fm.fetchReq<ResetPasswordRequest, ResetPasswordResponse>(`/api/v1alpha1/current-user/reset-password`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
@@ -71,6 +84,6 @@ export class CurrentUser {
     return fm.fetchReq<DeleteAccessTokenRequest, DeleteAccessTokenResponse>(`/apis/v1alpha1/current-user/access-tokens/${req["id"]}`, {...initReq, method: "DELETE"})
   }
   static GetProjectRoles(req: GetProjectRolesRequest, initReq?: fm.InitReq): Promise<GetProjectRolesResponse> {
-    return fm.fetchReq<GetProjectRolesRequest, GetProjectRolesResponse>(`/api/v1alpha1/users/projects/roles?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+    return fm.fetchReq<GetProjectRolesRequest, GetProjectRolesResponse>(`/api/v1alpha1/current-user/projects/role?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
   }
 }
