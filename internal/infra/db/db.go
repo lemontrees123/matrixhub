@@ -45,6 +45,7 @@ func New(config Config) (*gorm.DB, error) {
 			return nil, err
 		}
 	}
+
 	if config.Debug {
 		db = db.Debug()
 	}

@@ -46,6 +46,10 @@ func Init(configPath, sqlPath string) (*Config, error) {
 		return nil, fmt.Errorf("failed to load config(%s): %w", configPath, err)
 	}
 
+	// v.SetEnvPrefix("MATRIXHUB")
+	// v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	// v.AutomaticEnv()
+
 	// Allow env overrides (viper will use these when present)
 	_ = v.BindEnv("database.dsn", db.MATRIXHUB_DSN_ENV)
 
@@ -53,6 +57,7 @@ func Init(configPath, sqlPath string) (*Config, error) {
 	if err := v.Unmarshal(cfg); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config: %w", err)
 	}
+
 	if cfg.Database.DSN == "" {
 		log.Warn("failed to find matrixhub dsn from env or config")
 	}
@@ -65,6 +70,7 @@ func Init(configPath, sqlPath string) (*Config, error) {
 	if err := cfg.Validate(); err != nil {
 		return nil, fmt.Errorf("config invalid: %v", err)
 	}
+
 	return cfg, nil
 }
 

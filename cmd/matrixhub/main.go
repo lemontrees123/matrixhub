@@ -19,9 +19,6 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
-	"github.com/matrixhub-ai/matrixhub/internal/infra/config"
-	"github.com/matrixhub-ai/matrixhub/internal/infra/log"
 )
 
 const configFlag = "config"
@@ -39,19 +36,4 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-}
-
-func runInit(configPath string, sqlPath string) (*config.Config, func(), error) {
-	cfg, err := config.Init(configPath, sqlPath)
-	if err != nil {
-		return nil, nil, fmt.Errorf("config init failed: %v", err)
-	}
-
-	if err := log.SetLoggerWithConfig(cfg.Debug, cfg.Log); err != nil {
-		return nil, nil, fmt.Errorf("log init failed: %v", err)
-	}
-
-	return cfg, func() {
-		log.Sync()
-	}, nil
 }

@@ -28,7 +28,6 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/soheilhy/cmux"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/matrixhub-ai/matrixhub/internal/apiserver/handler"
 	"github.com/matrixhub-ai/matrixhub/internal/apiserver/middleware"
@@ -41,6 +40,7 @@ import (
 const maxGrpcMsgSize = 100 * 1024 * 1024
 
 type APIServer struct {
+	config     *config.Config
 	debug      bool
 	cmux       cmux.CMux
 	httpServer *http.Server
@@ -49,9 +49,8 @@ type APIServer struct {
 	grpcServer *grpc.Server
 	port       int
 
-	migrationPath string
-	repos         *repo.Repos
-	handlers      []handler.IHandler
+	repos    *repo.Repos
+	handlers []handler.IHandler
 }
 
 func NewAPIServer(config *config.Config) *APIServer {
@@ -59,37 +58,12 @@ func NewAPIServer(config *config.Config) *APIServer {
 		panic("apiserver config is nil")
 	}
 
-	repos := repo.NewRepos(config)
-
-	projectService := project.NewProjectService(repos.Project)
-
-	server := &APIServer{
-		debug:         config.Debug,
-		port:          config.APIServer.Port,
-		migrationPath: config.MigrationPath,
-		repos:         repos,
-		handlers: []handler.IHandler{
-			handler.NewProjectHandler(projectService),
-			handler.NewUserHandler(repos.User),
-			handler.NewRegistryHandler(),
-		},
-	}
-
 	engine := gin.New()
 	engine.Use(
 		gin.Recovery(),
 	)
 
-	server.engine = engine
-	// Create the main listener.
-	addr := fmt.Sprintf(":%d", server.port)
-	l, err := net.Listen("tcp", addr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	server.cmux = cmux.New(l)
-	server.gatewayMux = runtime.NewServeMux(
+	gatewayMux := runtime.NewServeMux(
 		runtime.WithForwardResponseOption(middleware.ResponseHeaderLocation),
 		runtime.WithOutgoingHeaderMatcher(func(s string) (string, bool) {
 			if s == "Content-Disposition" {
@@ -106,28 +80,57 @@ func NewAPIServer(config *config.Config) *APIServer {
 		grpc_recovery.UnaryServerInterceptor(),
 	}
 
-	server.grpcServer = grpc.NewServer(
+	grpcServer := grpc.NewServer(
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			streamMiddleware...,
 		)),
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			unaryMiddleware...,
 		)),
-		// gprc 默认最大发送消息4M，修改为最大发送消息100M，支持导出功能导出数量100W
 		grpc.MaxSendMsgSize(maxGrpcMsgSize),
 		grpc.MaxRecvMsgSize(maxGrpcMsgSize),
 	)
-	server.httpServer = &http.Server{
-		Handler:           server.engine,
+	httpServer := &http.Server{
+		Handler:           engine,
 		ReadHeaderTimeout: 30 * time.Second,
 	}
 
-	server.registerRoutersAndGRPCHandlers()
+	server := &APIServer{
+		config:     config,
+		debug:      config.Debug,
+		httpServer: httpServer,
+		engine:     engine,
+		gatewayMux: gatewayMux,
+		grpcServer: grpcServer,
+		port:       config.APIServer.Port,
+	}
+
+	server.initHandlersServicesRepos()
+
+	server.registerRoutersAndHandlers()
 
 	return server
 }
 
-func (server *APIServer) registerRoutersAndGRPCHandlers() {
+func (server *APIServer) initHandlersServicesRepos() {
+	// init repos
+	repos := repo.NewRepos(server.config)
+
+	// init domain services, add if needed
+	projectService := project.NewProjectService(repos.Project)
+
+	// init handlers
+	handlers := []handler.IHandler{
+		handler.NewProjectHandler(projectService),
+		handler.NewUserHandler(repos.User),
+		handler.NewRegistryHandler(),
+	}
+
+	server.repos = repos
+	server.handlers = handlers
+}
+
+func (server *APIServer) registerRoutersAndHandlers() {
 	// healthz endpoint
 	server.engine.GET("/healthz", func(c *gin.Context) { c.String(http.StatusOK, "OK") })
 
@@ -135,15 +138,8 @@ func (server *APIServer) registerRoutersAndGRPCHandlers() {
 	server.engine.Any("/api/v1alpha1/*any", gin.WrapF(server.gatewayMux.ServeHTTP))
 
 	options := &handler.ServerOptions{
-		Router:     server.engine,
 		GatewayMux: server.gatewayMux,
 		GRPCServer: server.grpcServer,
-		GRPCAddr:   fmt.Sprintf(":%d", server.port),
-		GRPCDialOpt: []grpc.DialOption{
-			grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithDefaultCallOptions(
-				grpc.MaxCallRecvMsgSize(maxGrpcMsgSize),
-				grpc.MaxCallSendMsgSize(maxGrpcMsgSize),
-			)},
 	}
 
 	for _, h := range server.handlers {
@@ -151,12 +147,18 @@ func (server *APIServer) registerRoutersAndGRPCHandlers() {
 	}
 }
 
-func (server *APIServer) Run() <-chan error {
-	errorCh := make(chan error, 1)
-
+func (server *APIServer) Start() <-chan error {
+	// Create the main listener.
+	addr := fmt.Sprintf(":%d", server.port)
+	l, err := net.Listen("tcp", addr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	server.cmux = cmux.New(l)
 	grpcL := server.cmux.Match(cmux.HTTP2())
 	httpL := server.cmux.Match(cmux.HTTP1Fast())
 
+	errorCh := make(chan error, 1)
 	go func() {
 		log.Infof("Internal http server is listening on %s", httpL.Addr().String())
 		if err := server.httpServer.Serve(httpL); err != nil {
@@ -173,7 +175,7 @@ func (server *APIServer) Run() <-chan error {
 		log.Infof("Internal grpc server is listening on %s", grpcL.Addr().String())
 		if err := server.grpcServer.Serve(grpcL); err != nil {
 			errorCh <- err
-			if errors.Is(err, http.ErrServerClosed) {
+			if errors.Is(err, grpc.ErrServerStopped) {
 				log.Info("grpc server closed")
 				return
 			}
@@ -185,7 +187,7 @@ func (server *APIServer) Run() <-chan error {
 		log.Infof("api server is listening on %d", server.port)
 		if err := server.cmux.Serve(); err != nil {
 			errorCh <- err
-			if errors.Is(err, http.ErrServerClosed) {
+			if errors.Is(err, cmux.ErrListenerClosed) {
 				log.Info("api server closed")
 				return
 			}

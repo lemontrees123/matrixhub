@@ -15,6 +15,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -23,6 +24,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/matrixhub-ai/matrixhub/internal/apiserver"
+	"github.com/matrixhub-ai/matrixhub/internal/infra/config"
+	"github.com/matrixhub-ai/matrixhub/internal/infra/log"
 )
 
 func runAPIServer(configPath string) error {
@@ -37,7 +40,7 @@ func runAPIServer(configPath string) error {
 	}
 
 	apiServer := apiserver.NewAPIServer(cfg)
-	errorCh := apiServer.Run()
+	errorCh := apiServer.Start()
 
 	sign := make(chan os.Signal, 1)
 	signal.Notify(sign, syscall.SIGINT, syscall.SIGTERM)
@@ -63,4 +66,19 @@ func init() {
 	rootCmd.AddCommand(apiserverCmd)
 
 	apiserverCmd.Flags().StringP(configFlag, "c", "/etc/matrixhub/config.yaml", "matrixhub config file path")
+}
+
+func runInit(configPath string, sqlPath string) (*config.Config, func(), error) {
+	cfg, err := config.Init(configPath, sqlPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("config init failed: %v", err)
+	}
+
+	if err := log.SetLoggerWithConfig(cfg.Debug, cfg.Log); err != nil {
+		return nil, nil, fmt.Errorf("log init failed: %v", err)
+	}
+
+	return cfg, func() {
+		log.Sync()
+	}, nil
 }
