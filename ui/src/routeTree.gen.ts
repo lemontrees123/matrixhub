@@ -25,10 +25,10 @@ import { Route as LayoutappModelsNewRouteImport } from './routes/_layout/(app)/m
 import { Route as LayoutappDatasetsNewRouteImport } from './routes/_layout/(app)/datasets/new'
 import { Route as LayoutappProjectsProjectIdRouteRouteImport } from './routes/_layout/(app)/projects/$projectId/route'
 import { Route as LayoutAdminReplicationsReplicationIdExecutionsRouteImport } from './routes/_layout/admin/replications_.$replicationId.executions'
-import { Route as LayoutappProjectsProjectIdModelsIndexRouteImport } from './routes/_layout/(app)/projects_.$projectId/models/index'
-import { Route as LayoutappProjectsProjectIdDatasetsIndexRouteImport } from './routes/_layout/(app)/projects_.$projectId/datasets/index'
 import { Route as LayoutappProjectsProjectIdSettingsIndexRouteImport } from './routes/_layout/(app)/projects/$projectId/settings/index'
+import { Route as LayoutappProjectsProjectIdModelsIndexRouteImport } from './routes/_layout/(app)/projects/$projectId/models/index'
 import { Route as LayoutappProjectsProjectIdMembersIndexRouteImport } from './routes/_layout/(app)/projects/$projectId/members/index'
+import { Route as LayoutappProjectsProjectIdDatasetsIndexRouteImport } from './routes/_layout/(app)/projects/$projectId/datasets/index'
 import { Route as LayoutappProjectsProjectIdModelsModelIdRouteImport } from './routes/_layout/(app)/projects_.$projectId/models/$modelId'
 import { Route as LayoutappProjectsProjectIdDatasetsDatasetIdRouteImport } from './routes/_layout/(app)/projects_.$projectId/datasets/$datasetId'
 import { Route as LayoutappProjectsProjectIdModelsModelIdIndexRouteImport } from './routes/_layout/(app)/projects_.$projectId/models/$modelId/index'
@@ -125,28 +125,28 @@ const LayoutAdminReplicationsReplicationIdExecutionsRoute =
     path: '/replications/$replicationId/executions',
     getParentRoute: () => LayoutAdminRoute,
   } as any)
-const LayoutappProjectsProjectIdModelsIndexRoute =
-  LayoutappProjectsProjectIdModelsIndexRouteImport.update({
-    id: '/(app)/projects_/$projectId/models/',
-    path: '/projects/$projectId/models/',
-    getParentRoute: () => LayoutRoute,
-  } as any)
-const LayoutappProjectsProjectIdDatasetsIndexRoute =
-  LayoutappProjectsProjectIdDatasetsIndexRouteImport.update({
-    id: '/(app)/projects_/$projectId/datasets/',
-    path: '/projects/$projectId/datasets/',
-    getParentRoute: () => LayoutRoute,
-  } as any)
 const LayoutappProjectsProjectIdSettingsIndexRoute =
   LayoutappProjectsProjectIdSettingsIndexRouteImport.update({
     id: '/settings/',
     path: '/settings/',
     getParentRoute: () => LayoutappProjectsProjectIdRouteRoute,
   } as any)
+const LayoutappProjectsProjectIdModelsIndexRoute =
+  LayoutappProjectsProjectIdModelsIndexRouteImport.update({
+    id: '/models/',
+    path: '/models/',
+    getParentRoute: () => LayoutappProjectsProjectIdRouteRoute,
+  } as any)
 const LayoutappProjectsProjectIdMembersIndexRoute =
   LayoutappProjectsProjectIdMembersIndexRouteImport.update({
     id: '/members/',
     path: '/members/',
+    getParentRoute: () => LayoutappProjectsProjectIdRouteRoute,
+  } as any)
+const LayoutappProjectsProjectIdDatasetsIndexRoute =
+  LayoutappProjectsProjectIdDatasetsIndexRouteImport.update({
+    id: '/datasets/',
+    path: '/datasets/',
     getParentRoute: () => LayoutappProjectsProjectIdRouteRoute,
   } as any)
 const LayoutappProjectsProjectIdModelsModelIdRoute =
@@ -254,10 +254,10 @@ export interface FileRoutesByFullPath {
   '/admin/replications/$replicationId/executions': typeof LayoutAdminReplicationsReplicationIdExecutionsRoute
   '/projects/$projectId/datasets/$datasetId': typeof LayoutappProjectsProjectIdDatasetsDatasetIdRouteWithChildren
   '/projects/$projectId/models/$modelId': typeof LayoutappProjectsProjectIdModelsModelIdRouteWithChildren
-  '/projects/$projectId/members/': typeof LayoutappProjectsProjectIdMembersIndexRoute
-  '/projects/$projectId/settings/': typeof LayoutappProjectsProjectIdSettingsIndexRoute
   '/projects/$projectId/datasets/': typeof LayoutappProjectsProjectIdDatasetsIndexRoute
+  '/projects/$projectId/members/': typeof LayoutappProjectsProjectIdMembersIndexRoute
   '/projects/$projectId/models/': typeof LayoutappProjectsProjectIdModelsIndexRoute
+  '/projects/$projectId/settings/': typeof LayoutappProjectsProjectIdSettingsIndexRoute
   '/projects/$projectId/datasets/$datasetId/': typeof LayoutappProjectsProjectIdDatasetsDatasetIdIndexRoute
   '/projects/$projectId/models/$modelId/': typeof LayoutappProjectsProjectIdModelsModelIdIndexRoute
   '/projects/$projectId/datasets/$datasetId/settings/': typeof LayoutappProjectsProjectIdDatasetsDatasetIdSettingsIndexRoute
@@ -286,10 +286,10 @@ export interface FileRoutesByTo {
   '/profile': typeof LayoutappProfileIndexRoute
   '/projects': typeof LayoutappProjectsIndexRoute
   '/admin/replications/$replicationId/executions': typeof LayoutAdminReplicationsReplicationIdExecutionsRoute
-  '/projects/$projectId/members': typeof LayoutappProjectsProjectIdMembersIndexRoute
-  '/projects/$projectId/settings': typeof LayoutappProjectsProjectIdSettingsIndexRoute
   '/projects/$projectId/datasets': typeof LayoutappProjectsProjectIdDatasetsIndexRoute
+  '/projects/$projectId/members': typeof LayoutappProjectsProjectIdMembersIndexRoute
   '/projects/$projectId/models': typeof LayoutappProjectsProjectIdModelsIndexRoute
+  '/projects/$projectId/settings': typeof LayoutappProjectsProjectIdSettingsIndexRoute
   '/projects/$projectId/datasets/$datasetId': typeof LayoutappProjectsProjectIdDatasetsDatasetIdIndexRoute
   '/projects/$projectId/models/$modelId': typeof LayoutappProjectsProjectIdModelsModelIdIndexRoute
   '/projects/$projectId/datasets/$datasetId/settings': typeof LayoutappProjectsProjectIdDatasetsDatasetIdSettingsIndexRoute
@@ -323,10 +323,10 @@ export interface FileRoutesById {
   '/_layout/admin/replications_/$replicationId/executions': typeof LayoutAdminReplicationsReplicationIdExecutionsRoute
   '/_layout/(app)/projects_/$projectId/datasets/$datasetId': typeof LayoutappProjectsProjectIdDatasetsDatasetIdRouteWithChildren
   '/_layout/(app)/projects_/$projectId/models/$modelId': typeof LayoutappProjectsProjectIdModelsModelIdRouteWithChildren
+  '/_layout/(app)/projects/$projectId/datasets/': typeof LayoutappProjectsProjectIdDatasetsIndexRoute
   '/_layout/(app)/projects/$projectId/members/': typeof LayoutappProjectsProjectIdMembersIndexRoute
+  '/_layout/(app)/projects/$projectId/models/': typeof LayoutappProjectsProjectIdModelsIndexRoute
   '/_layout/(app)/projects/$projectId/settings/': typeof LayoutappProjectsProjectIdSettingsIndexRoute
-  '/_layout/(app)/projects_/$projectId/datasets/': typeof LayoutappProjectsProjectIdDatasetsIndexRoute
-  '/_layout/(app)/projects_/$projectId/models/': typeof LayoutappProjectsProjectIdModelsIndexRoute
   '/_layout/(app)/projects_/$projectId/datasets/$datasetId/': typeof LayoutappProjectsProjectIdDatasetsDatasetIdIndexRoute
   '/_layout/(app)/projects_/$projectId/models/$modelId/': typeof LayoutappProjectsProjectIdModelsModelIdIndexRoute
   '/_layout/(app)/projects_/$projectId/datasets/$datasetId/settings/': typeof LayoutappProjectsProjectIdDatasetsDatasetIdSettingsIndexRoute
@@ -360,10 +360,10 @@ export interface FileRouteTypes {
     | '/admin/replications/$replicationId/executions'
     | '/projects/$projectId/datasets/$datasetId'
     | '/projects/$projectId/models/$modelId'
-    | '/projects/$projectId/members/'
-    | '/projects/$projectId/settings/'
     | '/projects/$projectId/datasets/'
+    | '/projects/$projectId/members/'
     | '/projects/$projectId/models/'
+    | '/projects/$projectId/settings/'
     | '/projects/$projectId/datasets/$datasetId/'
     | '/projects/$projectId/models/$modelId/'
     | '/projects/$projectId/datasets/$datasetId/settings/'
@@ -392,10 +392,10 @@ export interface FileRouteTypes {
     | '/profile'
     | '/projects'
     | '/admin/replications/$replicationId/executions'
-    | '/projects/$projectId/members'
-    | '/projects/$projectId/settings'
     | '/projects/$projectId/datasets'
+    | '/projects/$projectId/members'
     | '/projects/$projectId/models'
+    | '/projects/$projectId/settings'
     | '/projects/$projectId/datasets/$datasetId'
     | '/projects/$projectId/models/$modelId'
     | '/projects/$projectId/datasets/$datasetId/settings'
@@ -428,10 +428,10 @@ export interface FileRouteTypes {
     | '/_layout/admin/replications_/$replicationId/executions'
     | '/_layout/(app)/projects_/$projectId/datasets/$datasetId'
     | '/_layout/(app)/projects_/$projectId/models/$modelId'
+    | '/_layout/(app)/projects/$projectId/datasets/'
     | '/_layout/(app)/projects/$projectId/members/'
+    | '/_layout/(app)/projects/$projectId/models/'
     | '/_layout/(app)/projects/$projectId/settings/'
-    | '/_layout/(app)/projects_/$projectId/datasets/'
-    | '/_layout/(app)/projects_/$projectId/models/'
     | '/_layout/(app)/projects_/$projectId/datasets/$datasetId/'
     | '/_layout/(app)/projects_/$projectId/models/$modelId/'
     | '/_layout/(app)/projects_/$projectId/datasets/$datasetId/settings/'
@@ -565,20 +565,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminReplicationsReplicationIdExecutionsRouteImport
       parentRoute: typeof LayoutAdminRoute
     }
-    '/_layout/(app)/projects_/$projectId/models/': {
-      id: '/_layout/(app)/projects_/$projectId/models/'
-      path: '/projects/$projectId/models'
-      fullPath: '/projects/$projectId/models/'
-      preLoaderRoute: typeof LayoutappProjectsProjectIdModelsIndexRouteImport
-      parentRoute: typeof LayoutRoute
-    }
-    '/_layout/(app)/projects_/$projectId/datasets/': {
-      id: '/_layout/(app)/projects_/$projectId/datasets/'
-      path: '/projects/$projectId/datasets'
-      fullPath: '/projects/$projectId/datasets/'
-      preLoaderRoute: typeof LayoutappProjectsProjectIdDatasetsIndexRouteImport
-      parentRoute: typeof LayoutRoute
-    }
     '/_layout/(app)/projects/$projectId/settings/': {
       id: '/_layout/(app)/projects/$projectId/settings/'
       path: '/settings'
@@ -586,11 +572,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutappProjectsProjectIdSettingsIndexRouteImport
       parentRoute: typeof LayoutappProjectsProjectIdRouteRoute
     }
+    '/_layout/(app)/projects/$projectId/models/': {
+      id: '/_layout/(app)/projects/$projectId/models/'
+      path: '/models'
+      fullPath: '/projects/$projectId/models/'
+      preLoaderRoute: typeof LayoutappProjectsProjectIdModelsIndexRouteImport
+      parentRoute: typeof LayoutappProjectsProjectIdRouteRoute
+    }
     '/_layout/(app)/projects/$projectId/members/': {
       id: '/_layout/(app)/projects/$projectId/members/'
       path: '/members'
       fullPath: '/projects/$projectId/members/'
       preLoaderRoute: typeof LayoutappProjectsProjectIdMembersIndexRouteImport
+      parentRoute: typeof LayoutappProjectsProjectIdRouteRoute
+    }
+    '/_layout/(app)/projects/$projectId/datasets/': {
+      id: '/_layout/(app)/projects/$projectId/datasets/'
+      path: '/datasets'
+      fullPath: '/projects/$projectId/datasets/'
+      preLoaderRoute: typeof LayoutappProjectsProjectIdDatasetsIndexRouteImport
       parentRoute: typeof LayoutappProjectsProjectIdRouteRoute
     }
     '/_layout/(app)/projects_/$projectId/models/$modelId': {
@@ -716,14 +716,20 @@ const LayoutAdminRouteWithChildren = LayoutAdminRoute._addFileChildren(
 )
 
 interface LayoutappProjectsProjectIdRouteRouteChildren {
+  LayoutappProjectsProjectIdDatasetsIndexRoute: typeof LayoutappProjectsProjectIdDatasetsIndexRoute
   LayoutappProjectsProjectIdMembersIndexRoute: typeof LayoutappProjectsProjectIdMembersIndexRoute
+  LayoutappProjectsProjectIdModelsIndexRoute: typeof LayoutappProjectsProjectIdModelsIndexRoute
   LayoutappProjectsProjectIdSettingsIndexRoute: typeof LayoutappProjectsProjectIdSettingsIndexRoute
 }
 
 const LayoutappProjectsProjectIdRouteRouteChildren: LayoutappProjectsProjectIdRouteRouteChildren =
   {
+    LayoutappProjectsProjectIdDatasetsIndexRoute:
+      LayoutappProjectsProjectIdDatasetsIndexRoute,
     LayoutappProjectsProjectIdMembersIndexRoute:
       LayoutappProjectsProjectIdMembersIndexRoute,
+    LayoutappProjectsProjectIdModelsIndexRoute:
+      LayoutappProjectsProjectIdModelsIndexRoute,
     LayoutappProjectsProjectIdSettingsIndexRoute:
       LayoutappProjectsProjectIdSettingsIndexRoute,
   }
@@ -805,8 +811,6 @@ interface LayoutRouteChildren {
   LayoutappProjectsIndexRoute: typeof LayoutappProjectsIndexRoute
   LayoutappProjectsProjectIdDatasetsDatasetIdRoute: typeof LayoutappProjectsProjectIdDatasetsDatasetIdRouteWithChildren
   LayoutappProjectsProjectIdModelsModelIdRoute: typeof LayoutappProjectsProjectIdModelsModelIdRouteWithChildren
-  LayoutappProjectsProjectIdDatasetsIndexRoute: typeof LayoutappProjectsProjectIdDatasetsIndexRoute
-  LayoutappProjectsProjectIdModelsIndexRoute: typeof LayoutappProjectsProjectIdModelsIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -824,10 +828,6 @@ const LayoutRouteChildren: LayoutRouteChildren = {
     LayoutappProjectsProjectIdDatasetsDatasetIdRouteWithChildren,
   LayoutappProjectsProjectIdModelsModelIdRoute:
     LayoutappProjectsProjectIdModelsModelIdRouteWithChildren,
-  LayoutappProjectsProjectIdDatasetsIndexRoute:
-    LayoutappProjectsProjectIdDatasetsIndexRoute,
-  LayoutappProjectsProjectIdModelsIndexRoute:
-    LayoutappProjectsProjectIdModelsIndexRoute,
 }
 
 const LayoutRouteWithChildren =

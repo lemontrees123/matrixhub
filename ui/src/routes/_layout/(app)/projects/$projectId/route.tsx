@@ -12,6 +12,7 @@ export function RouteComponent() {
     <Stack>
       <Title order={2}>Project Detail</Title>
       {projectId}
+
       <Outlet />
     </Stack>
   )
