@@ -47,14 +47,14 @@ export enum ReplicationExecutionStatus {
 export type PullBasePolicy = {
   sourceRegistryId?: number
   resourceName?: string
-  resourceType?: ResourceType
+  resourceTypes?: ResourceType[]
   targetResourceName?: string
   sourceRegistry?: MatrixhubV1alpha1Registry.Registry
 }
 
 export type PushBasePolicy = {
   resourceName?: string
-  resourceType?: ResourceType
+  resourceTypes?: ResourceType[]
   targetRegistryId?: number
   targetResourceName?: string
   targetRegistry?: MatrixhubV1alpha1Registry.Registry
@@ -129,6 +129,14 @@ export type ListReplicationsResponse = {
   pagination?: MatrixhubV1alpha1Utils.Pagination
 }
 
+export type GetReplicationRequest = {
+  replicationId?: number
+}
+
+export type GetReplicationResponse = {
+  replication?: ReplicationItem
+}
+
 export type CreateReplicationExecutionRequest = {
   replicationId?: number
 }
@@ -172,6 +180,9 @@ export type StopReplicationExecutionResponse = {
 export class Replication {
   static ListReplications(req: ListReplicationsRequest, initReq?: fm.InitReq): Promise<ListReplicationsResponse> {
     return fm.fetchReq<ListReplicationsRequest, ListReplicationsResponse>(`/api/v1alpha1/replications?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+  }
+  static GetReplication(req: GetReplicationRequest, initReq?: fm.InitReq): Promise<GetReplicationResponse> {
+    return fm.fetchReq<GetReplicationRequest, GetReplicationResponse>(`/api/v1alpha1/replications/${req["replicationId"]}?${fm.renderURLSearchParams(req, ["replicationId"])}`, {...initReq, method: "GET"})
   }
   static CreateReplication(req: CreateReplicationRequest, initReq?: fm.InitReq): Promise<CreateReplicationResponse> {
     return fm.fetchReq<CreateReplicationRequest, CreateReplicationResponse>(`/api/v1alpha1/replications`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})

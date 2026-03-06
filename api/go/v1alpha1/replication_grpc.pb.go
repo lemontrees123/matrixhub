@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	Replication_ListReplications_FullMethodName           = "/matrixhub.v1alpha1.Replication/ListReplications"
+	Replication_GetReplication_FullMethodName             = "/matrixhub.v1alpha1.Replication/GetReplication"
 	Replication_CreateReplication_FullMethodName          = "/matrixhub.v1alpha1.Replication/CreateReplication"
 	Replication_UpdateReplication_FullMethodName          = "/matrixhub.v1alpha1.Replication/UpdateReplication"
 	Replication_DeleteReplication_FullMethodName          = "/matrixhub.v1alpha1.Replication/DeleteReplication"
@@ -34,6 +35,8 @@ const (
 type ReplicationClient interface {
 	// ListReplications lists all replications.
 	ListReplications(ctx context.Context, in *ListReplicationsRequest, opts ...grpc.CallOption) (*ListReplicationsResponse, error)
+	// GetReplication gets a replication by id.
+	GetReplication(ctx context.Context, in *GetReplicationRequest, opts ...grpc.CallOption) (*GetReplicationResponse, error)
 	// CreateReplication creates a new replication.
 	CreateReplication(ctx context.Context, in *CreateReplicationRequest, opts ...grpc.CallOption) (*CreateReplicationResponse, error)
 	// UpdateReplication updates a replication.
@@ -60,6 +63,16 @@ func (c *replicationClient) ListReplications(ctx context.Context, in *ListReplic
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListReplicationsResponse)
 	err := c.cc.Invoke(ctx, Replication_ListReplications_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *replicationClient) GetReplication(ctx context.Context, in *GetReplicationRequest, opts ...grpc.CallOption) (*GetReplicationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetReplicationResponse)
+	err := c.cc.Invoke(ctx, Replication_GetReplication_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -132,6 +145,8 @@ func (c *replicationClient) StopReplicationExecution(ctx context.Context, in *St
 type ReplicationServer interface {
 	// ListReplications lists all replications.
 	ListReplications(context.Context, *ListReplicationsRequest) (*ListReplicationsResponse, error)
+	// GetReplication gets a replication by id.
+	GetReplication(context.Context, *GetReplicationRequest) (*GetReplicationResponse, error)
 	// CreateReplication creates a new replication.
 	CreateReplication(context.Context, *CreateReplicationRequest) (*CreateReplicationResponse, error)
 	// UpdateReplication updates a replication.
@@ -155,6 +170,9 @@ type UnimplementedReplicationServer struct{}
 
 func (UnimplementedReplicationServer) ListReplications(context.Context, *ListReplicationsRequest) (*ListReplicationsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListReplications not implemented")
+}
+func (UnimplementedReplicationServer) GetReplication(context.Context, *GetReplicationRequest) (*GetReplicationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetReplication not implemented")
 }
 func (UnimplementedReplicationServer) CreateReplication(context.Context, *CreateReplicationRequest) (*CreateReplicationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateReplication not implemented")
@@ -208,6 +226,24 @@ func _Replication_ListReplications_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ReplicationServer).ListReplications(ctx, req.(*ListReplicationsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Replication_GetReplication_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetReplicationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ReplicationServer).GetReplication(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Replication_GetReplication_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ReplicationServer).GetReplication(ctx, req.(*GetReplicationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -330,6 +366,10 @@ var Replication_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListReplications",
 			Handler:    _Replication_ListReplications_Handler,
+		},
+		{
+			MethodName: "GetReplication",
+			Handler:    _Replication_GetReplication_Handler,
 		},
 		{
 			MethodName: "CreateReplication",

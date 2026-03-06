@@ -231,7 +231,7 @@ type PullBasePolicy struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	SourceRegistryId   uint32                 `protobuf:"varint,1,opt,name=source_registry_id,json=sourceRegistryId,proto3" json:"source_registry_id,omitempty"`
 	ResourceName       string                 `protobuf:"bytes,2,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
-	ResourceType       ResourceType           `protobuf:"varint,3,opt,name=resource_type,json=resourceType,proto3,enum=matrixhub.v1alpha1.ResourceType" json:"resource_type,omitempty"`
+	ResourceTypes      []ResourceType         `protobuf:"varint,3,rep,packed,name=resource_types,json=resourceTypes,proto3,enum=matrixhub.v1alpha1.ResourceType" json:"resource_types,omitempty"`
 	TargetResourceName string                 `protobuf:"bytes,4,opt,name=target_resource_name,json=targetResourceName,proto3" json:"target_resource_name,omitempty"`
 	// post or put do not require this field.
 	SourceRegistry *Registry `protobuf:"bytes,5,opt,name=source_registry,json=sourceRegistry,proto3" json:"source_registry,omitempty"`
@@ -283,11 +283,11 @@ func (x *PullBasePolicy) GetResourceName() string {
 	return ""
 }
 
-func (x *PullBasePolicy) GetResourceType() ResourceType {
+func (x *PullBasePolicy) GetResourceTypes() []ResourceType {
 	if x != nil {
-		return x.ResourceType
+		return x.ResourceTypes
 	}
-	return ResourceType_RESOURCE_TYPE_UNSPECIFIED
+	return nil
 }
 
 func (x *PullBasePolicy) GetTargetResourceName() string {
@@ -307,7 +307,7 @@ func (x *PullBasePolicy) GetSourceRegistry() *Registry {
 type PushBasePolicy struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	ResourceName       string                 `protobuf:"bytes,1,opt,name=resource_name,json=resourceName,proto3" json:"resource_name,omitempty"`
-	ResourceType       ResourceType           `protobuf:"varint,2,opt,name=resource_type,json=resourceType,proto3,enum=matrixhub.v1alpha1.ResourceType" json:"resource_type,omitempty"`
+	ResourceTypes      []ResourceType         `protobuf:"varint,2,rep,packed,name=resource_types,json=resourceTypes,proto3,enum=matrixhub.v1alpha1.ResourceType" json:"resource_types,omitempty"`
 	TargetRegistryId   uint32                 `protobuf:"varint,3,opt,name=target_registry_id,json=targetRegistryId,proto3" json:"target_registry_id,omitempty"`
 	TargetResourceName string                 `protobuf:"bytes,4,opt,name=target_resource_name,json=targetResourceName,proto3" json:"target_resource_name,omitempty"`
 	// post or put do not require this field.
@@ -353,11 +353,11 @@ func (x *PushBasePolicy) GetResourceName() string {
 	return ""
 }
 
-func (x *PushBasePolicy) GetResourceType() ResourceType {
+func (x *PushBasePolicy) GetResourceTypes() []ResourceType {
 	if x != nil {
-		return x.ResourceType
+		return x.ResourceTypes
 	}
-	return ResourceType_RESOURCE_TYPE_UNSPECIFIED
+	return nil
 }
 
 func (x *PushBasePolicy) GetTargetRegistryId() uint32 {
@@ -1092,6 +1092,94 @@ func (x *ListReplicationsResponse) GetPagination() *Pagination {
 	return nil
 }
 
+type GetReplicationRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ReplicationId int32                  `protobuf:"varint,1,opt,name=replication_id,json=replicationId,proto3" json:"replication_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReplicationRequest) Reset() {
+	*x = GetReplicationRequest{}
+	mi := &file_v1alpha1_replication_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReplicationRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReplicationRequest) ProtoMessage() {}
+
+func (x *GetReplicationRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_v1alpha1_replication_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReplicationRequest.ProtoReflect.Descriptor instead.
+func (*GetReplicationRequest) Descriptor() ([]byte, []int) {
+	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetReplicationRequest) GetReplicationId() int32 {
+	if x != nil {
+		return x.ReplicationId
+	}
+	return 0
+}
+
+type GetReplicationResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Replication   *ReplicationItem       `protobuf:"bytes,1,opt,name=replication,proto3" json:"replication,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetReplicationResponse) Reset() {
+	*x = GetReplicationResponse{}
+	mi := &file_v1alpha1_replication_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetReplicationResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetReplicationResponse) ProtoMessage() {}
+
+func (x *GetReplicationResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_v1alpha1_replication_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetReplicationResponse.ProtoReflect.Descriptor instead.
+func (*GetReplicationResponse) Descriptor() ([]byte, []int) {
+	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetReplicationResponse) GetReplication() *ReplicationItem {
+	if x != nil {
+		return x.Replication
+	}
+	return nil
+}
+
 type CreateReplicationExecutionRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ReplicationId int32                  `protobuf:"varint,1,opt,name=replication_id,json=replicationId,proto3" json:"replication_id,omitempty"`
@@ -1101,7 +1189,7 @@ type CreateReplicationExecutionRequest struct {
 
 func (x *CreateReplicationExecutionRequest) Reset() {
 	*x = CreateReplicationExecutionRequest{}
-	mi := &file_v1alpha1_replication_proto_msgTypes[11]
+	mi := &file_v1alpha1_replication_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1113,7 +1201,7 @@ func (x *CreateReplicationExecutionRequest) String() string {
 func (*CreateReplicationExecutionRequest) ProtoMessage() {}
 
 func (x *CreateReplicationExecutionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_replication_proto_msgTypes[11]
+	mi := &file_v1alpha1_replication_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1126,7 +1214,7 @@ func (x *CreateReplicationExecutionRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use CreateReplicationExecutionRequest.ProtoReflect.Descriptor instead.
 func (*CreateReplicationExecutionRequest) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{11}
+	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CreateReplicationExecutionRequest) GetReplicationId() int32 {
@@ -1145,7 +1233,7 @@ type CreateReplicationExecutionResponse struct {
 
 func (x *CreateReplicationExecutionResponse) Reset() {
 	*x = CreateReplicationExecutionResponse{}
-	mi := &file_v1alpha1_replication_proto_msgTypes[12]
+	mi := &file_v1alpha1_replication_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1157,7 +1245,7 @@ func (x *CreateReplicationExecutionResponse) String() string {
 func (*CreateReplicationExecutionResponse) ProtoMessage() {}
 
 func (x *CreateReplicationExecutionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_replication_proto_msgTypes[12]
+	mi := &file_v1alpha1_replication_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1170,7 +1258,7 @@ func (x *CreateReplicationExecutionResponse) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use CreateReplicationExecutionResponse.ProtoReflect.Descriptor instead.
 func (*CreateReplicationExecutionResponse) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{12}
+	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *CreateReplicationExecutionResponse) GetId() int32 {
@@ -1196,7 +1284,7 @@ type ReplicationExecution struct {
 
 func (x *ReplicationExecution) Reset() {
 	*x = ReplicationExecution{}
-	mi := &file_v1alpha1_replication_proto_msgTypes[13]
+	mi := &file_v1alpha1_replication_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1208,7 +1296,7 @@ func (x *ReplicationExecution) String() string {
 func (*ReplicationExecution) ProtoMessage() {}
 
 func (x *ReplicationExecution) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_replication_proto_msgTypes[13]
+	mi := &file_v1alpha1_replication_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1221,7 +1309,7 @@ func (x *ReplicationExecution) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReplicationExecution.ProtoReflect.Descriptor instead.
 func (*ReplicationExecution) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{13}
+	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ReplicationExecution) GetId() int32 {
@@ -1292,7 +1380,7 @@ type ListReplicationExecutionsRequest struct {
 
 func (x *ListReplicationExecutionsRequest) Reset() {
 	*x = ListReplicationExecutionsRequest{}
-	mi := &file_v1alpha1_replication_proto_msgTypes[14]
+	mi := &file_v1alpha1_replication_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1304,7 +1392,7 @@ func (x *ListReplicationExecutionsRequest) String() string {
 func (*ListReplicationExecutionsRequest) ProtoMessage() {}
 
 func (x *ListReplicationExecutionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_replication_proto_msgTypes[14]
+	mi := &file_v1alpha1_replication_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1317,7 +1405,7 @@ func (x *ListReplicationExecutionsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListReplicationExecutionsRequest.ProtoReflect.Descriptor instead.
 func (*ListReplicationExecutionsRequest) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{14}
+	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ListReplicationExecutionsRequest) GetReplicationId() int32 {
@@ -1358,7 +1446,7 @@ type ListReplicationExecutionsResponse struct {
 
 func (x *ListReplicationExecutionsResponse) Reset() {
 	*x = ListReplicationExecutionsResponse{}
-	mi := &file_v1alpha1_replication_proto_msgTypes[15]
+	mi := &file_v1alpha1_replication_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1370,7 +1458,7 @@ func (x *ListReplicationExecutionsResponse) String() string {
 func (*ListReplicationExecutionsResponse) ProtoMessage() {}
 
 func (x *ListReplicationExecutionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_replication_proto_msgTypes[15]
+	mi := &file_v1alpha1_replication_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1383,7 +1471,7 @@ func (x *ListReplicationExecutionsResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ListReplicationExecutionsResponse.ProtoReflect.Descriptor instead.
 func (*ListReplicationExecutionsResponse) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{15}
+	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListReplicationExecutionsResponse) GetExecutions() []*ReplicationExecution {
@@ -1410,7 +1498,7 @@ type StopReplicationExecutionRequest struct {
 
 func (x *StopReplicationExecutionRequest) Reset() {
 	*x = StopReplicationExecutionRequest{}
-	mi := &file_v1alpha1_replication_proto_msgTypes[16]
+	mi := &file_v1alpha1_replication_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1422,7 +1510,7 @@ func (x *StopReplicationExecutionRequest) String() string {
 func (*StopReplicationExecutionRequest) ProtoMessage() {}
 
 func (x *StopReplicationExecutionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_replication_proto_msgTypes[16]
+	mi := &file_v1alpha1_replication_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1435,7 +1523,7 @@ func (x *StopReplicationExecutionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopReplicationExecutionRequest.ProtoReflect.Descriptor instead.
 func (*StopReplicationExecutionRequest) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{16}
+	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *StopReplicationExecutionRequest) GetReplicationId() int32 {
@@ -1461,7 +1549,7 @@ type StopReplicationExecutionResponse struct {
 
 func (x *StopReplicationExecutionResponse) Reset() {
 	*x = StopReplicationExecutionResponse{}
-	mi := &file_v1alpha1_replication_proto_msgTypes[17]
+	mi := &file_v1alpha1_replication_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1473,7 +1561,7 @@ func (x *StopReplicationExecutionResponse) String() string {
 func (*StopReplicationExecutionResponse) ProtoMessage() {}
 
 func (x *StopReplicationExecutionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_v1alpha1_replication_proto_msgTypes[17]
+	mi := &file_v1alpha1_replication_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1486,7 +1574,7 @@ func (x *StopReplicationExecutionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StopReplicationExecutionResponse.ProtoReflect.Descriptor instead.
 func (*StopReplicationExecutionResponse) Descriptor() ([]byte, []int) {
-	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{17}
+	return file_v1alpha1_replication_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *StopReplicationExecutionResponse) GetExecution() *ReplicationExecution {
@@ -1500,16 +1588,16 @@ var File_v1alpha1_replication_proto protoreflect.FileDescriptor
 
 const file_v1alpha1_replication_proto_rawDesc = "" +
 	"\n" +
-	"\x1av1alpha1/replication.proto\x12\x12matrixhub.v1alpha1\x1a\x1cgoogle/api/annotations.proto\x1a\x14v1alpha1/utils.proto\x1a\x17v1alpha1/registry.proto\"\xa3\x02\n" +
+	"\x1av1alpha1/replication.proto\x12\x12matrixhub.v1alpha1\x1a\x1cgoogle/api/annotations.proto\x1a\x14v1alpha1/utils.proto\x1a\x17v1alpha1/registry.proto\"\xa5\x02\n" +
 	"\x0ePullBasePolicy\x12,\n" +
 	"\x12source_registry_id\x18\x01 \x01(\rR\x10sourceRegistryId\x12#\n" +
-	"\rresource_name\x18\x02 \x01(\tR\fresourceName\x12E\n" +
-	"\rresource_type\x18\x03 \x01(\x0e2 .matrixhub.v1alpha1.ResourceTypeR\fresourceType\x120\n" +
+	"\rresource_name\x18\x02 \x01(\tR\fresourceName\x12G\n" +
+	"\x0eresource_types\x18\x03 \x03(\x0e2 .matrixhub.v1alpha1.ResourceTypeR\rresourceTypes\x120\n" +
 	"\x14target_resource_name\x18\x04 \x01(\tR\x12targetResourceName\x12E\n" +
-	"\x0fsource_registry\x18\x05 \x01(\v2\x1c.matrixhub.v1alpha1.RegistryR\x0esourceRegistry\"\xa3\x02\n" +
+	"\x0fsource_registry\x18\x05 \x01(\v2\x1c.matrixhub.v1alpha1.RegistryR\x0esourceRegistry\"\xa5\x02\n" +
 	"\x0ePushBasePolicy\x12#\n" +
-	"\rresource_name\x18\x01 \x01(\tR\fresourceName\x12E\n" +
-	"\rresource_type\x18\x02 \x01(\x0e2 .matrixhub.v1alpha1.ResourceTypeR\fresourceType\x12,\n" +
+	"\rresource_name\x18\x01 \x01(\tR\fresourceName\x12G\n" +
+	"\x0eresource_types\x18\x02 \x03(\x0e2 .matrixhub.v1alpha1.ResourceTypeR\rresourceTypes\x12,\n" +
 	"\x12target_registry_id\x18\x03 \x01(\rR\x10targetRegistryId\x120\n" +
 	"\x14target_resource_name\x18\x04 \x01(\tR\x12targetResourceName\x12E\n" +
 	"\x0ftarget_registry\x18\x05 \x01(\v2\x1c.matrixhub.v1alpha1.RegistryR\x0etargetRegistry\"\xf3\x03\n" +
@@ -1567,7 +1655,11 @@ const file_v1alpha1_replication_proto_rawDesc = "" +
 	"\freplications\x18\x01 \x03(\v2#.matrixhub.v1alpha1.ReplicationItemR\freplications\x12>\n" +
 	"\n" +
 	"pagination\x18\x02 \x01(\v2\x1e.matrixhub.v1alpha1.PaginationR\n" +
-	"pagination\"J\n" +
+	"pagination\">\n" +
+	"\x15GetReplicationRequest\x12%\n" +
+	"\x0ereplication_id\x18\x01 \x01(\x05R\rreplicationId\"_\n" +
+	"\x16GetReplicationResponse\x12E\n" +
+	"\vreplication\x18\x01 \x01(\v2#.matrixhub.v1alpha1.ReplicationItemR\vreplication\"J\n" +
 	"!CreateReplicationExecutionRequest\x12%\n" +
 	"\x0ereplication_id\x18\x01 \x01(\x05R\rreplicationId\"4\n" +
 	"\"CreateReplicationExecutionResponse\x12\x0e\n" +
@@ -1617,10 +1709,10 @@ const file_v1alpha1_replication_proto_rawDesc = "" +
 	"$REPLICATION_EXECUTION_STATUS_RUNNING\x10\x01\x12*\n" +
 	"&REPLICATION_EXECUTION_STATUS_SUCCEEDED\x10\x02\x12'\n" +
 	"#REPLICATION_EXECUTION_STATUS_FAILED\x10\x03\x12(\n" +
-	"$REPLICATION_EXECUTION_STATUS_STOPPED\x10\x042\x83\n" +
-	"\n" +
+	"$REPLICATION_EXECUTION_STATUS_STOPPED\x10\x042\xa2\v\n" +
 	"\vReplication\x12\x91\x01\n" +
-	"\x10ListReplications\x12+.matrixhub.v1alpha1.ListReplicationsRequest\x1a,.matrixhub.v1alpha1.ListReplicationsResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1alpha1/replications\x12\x97\x01\n" +
+	"\x10ListReplications\x12+.matrixhub.v1alpha1.ListReplicationsRequest\x1a,.matrixhub.v1alpha1.ListReplicationsResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1alpha1/replications\x12\x9c\x01\n" +
+	"\x0eGetReplication\x12).matrixhub.v1alpha1.GetReplicationRequest\x1a*.matrixhub.v1alpha1.GetReplicationResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1alpha1/replications/{replication_id}\x12\x97\x01\n" +
 	"\x11CreateReplication\x12,.matrixhub.v1alpha1.CreateReplicationRequest\x1a-.matrixhub.v1alpha1.CreateReplicationResponse\"%\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/api/v1alpha1/replications\x12\xa8\x01\n" +
 	"\x11UpdateReplication\x12,.matrixhub.v1alpha1.UpdateReplicationRequest\x1a-.matrixhub.v1alpha1.UpdateReplicationResponse\"6\x82\xd3\xe4\x93\x020:\x01*\x1a+/api/v1alpha1/replications/{replication_id}\x12\xa5\x01\n" +
 	"\x11DeleteReplication\x12,.matrixhub.v1alpha1.DeleteReplicationRequest\x1a-.matrixhub.v1alpha1.DeleteReplicationResponse\"3\x82\xd3\xe4\x93\x02-*+/api/v1alpha1/replications/{replication_id}\x12\xcb\x01\n" +
@@ -1641,7 +1733,7 @@ func file_v1alpha1_replication_proto_rawDescGZIP() []byte {
 }
 
 var file_v1alpha1_replication_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_v1alpha1_replication_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_v1alpha1_replication_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_v1alpha1_replication_proto_goTypes = []any{
 	(ReplicationPolicyType)(0),                 // 0: matrixhub.v1alpha1.ReplicationPolicyType
 	(ResourceType)(0),                          // 1: matrixhub.v1alpha1.ResourceType
@@ -1658,21 +1750,23 @@ var file_v1alpha1_replication_proto_goTypes = []any{
 	(*DeleteReplicationResponse)(nil),          // 12: matrixhub.v1alpha1.DeleteReplicationResponse
 	(*ListReplicationsRequest)(nil),            // 13: matrixhub.v1alpha1.ListReplicationsRequest
 	(*ListReplicationsResponse)(nil),           // 14: matrixhub.v1alpha1.ListReplicationsResponse
-	(*CreateReplicationExecutionRequest)(nil),  // 15: matrixhub.v1alpha1.CreateReplicationExecutionRequest
-	(*CreateReplicationExecutionResponse)(nil), // 16: matrixhub.v1alpha1.CreateReplicationExecutionResponse
-	(*ReplicationExecution)(nil),               // 17: matrixhub.v1alpha1.ReplicationExecution
-	(*ListReplicationExecutionsRequest)(nil),   // 18: matrixhub.v1alpha1.ListReplicationExecutionsRequest
-	(*ListReplicationExecutionsResponse)(nil),  // 19: matrixhub.v1alpha1.ListReplicationExecutionsResponse
-	(*StopReplicationExecutionRequest)(nil),    // 20: matrixhub.v1alpha1.StopReplicationExecutionRequest
-	(*StopReplicationExecutionResponse)(nil),   // 21: matrixhub.v1alpha1.StopReplicationExecutionResponse
-	(*Registry)(nil),                           // 22: matrixhub.v1alpha1.Registry
-	(*Pagination)(nil),                         // 23: matrixhub.v1alpha1.Pagination
+	(*GetReplicationRequest)(nil),              // 15: matrixhub.v1alpha1.GetReplicationRequest
+	(*GetReplicationResponse)(nil),             // 16: matrixhub.v1alpha1.GetReplicationResponse
+	(*CreateReplicationExecutionRequest)(nil),  // 17: matrixhub.v1alpha1.CreateReplicationExecutionRequest
+	(*CreateReplicationExecutionResponse)(nil), // 18: matrixhub.v1alpha1.CreateReplicationExecutionResponse
+	(*ReplicationExecution)(nil),               // 19: matrixhub.v1alpha1.ReplicationExecution
+	(*ListReplicationExecutionsRequest)(nil),   // 20: matrixhub.v1alpha1.ListReplicationExecutionsRequest
+	(*ListReplicationExecutionsResponse)(nil),  // 21: matrixhub.v1alpha1.ListReplicationExecutionsResponse
+	(*StopReplicationExecutionRequest)(nil),    // 22: matrixhub.v1alpha1.StopReplicationExecutionRequest
+	(*StopReplicationExecutionResponse)(nil),   // 23: matrixhub.v1alpha1.StopReplicationExecutionResponse
+	(*Registry)(nil),                           // 24: matrixhub.v1alpha1.Registry
+	(*Pagination)(nil),                         // 25: matrixhub.v1alpha1.Pagination
 }
 var file_v1alpha1_replication_proto_depIdxs = []int32{
-	1,  // 0: matrixhub.v1alpha1.PullBasePolicy.resource_type:type_name -> matrixhub.v1alpha1.ResourceType
-	22, // 1: matrixhub.v1alpha1.PullBasePolicy.source_registry:type_name -> matrixhub.v1alpha1.Registry
-	1,  // 2: matrixhub.v1alpha1.PushBasePolicy.resource_type:type_name -> matrixhub.v1alpha1.ResourceType
-	22, // 3: matrixhub.v1alpha1.PushBasePolicy.target_registry:type_name -> matrixhub.v1alpha1.Registry
+	1,  // 0: matrixhub.v1alpha1.PullBasePolicy.resource_types:type_name -> matrixhub.v1alpha1.ResourceType
+	24, // 1: matrixhub.v1alpha1.PullBasePolicy.source_registry:type_name -> matrixhub.v1alpha1.Registry
+	1,  // 2: matrixhub.v1alpha1.PushBasePolicy.resource_types:type_name -> matrixhub.v1alpha1.ResourceType
+	24, // 3: matrixhub.v1alpha1.PushBasePolicy.target_registry:type_name -> matrixhub.v1alpha1.Registry
 	0,  // 4: matrixhub.v1alpha1.ReplicationItem.policy_type:type_name -> matrixhub.v1alpha1.ReplicationPolicyType
 	2,  // 5: matrixhub.v1alpha1.ReplicationItem.trigger_type:type_name -> matrixhub.v1alpha1.triggerType
 	4,  // 6: matrixhub.v1alpha1.ReplicationItem.pull_base_policy:type_name -> matrixhub.v1alpha1.PullBasePolicy
@@ -1688,31 +1782,34 @@ var file_v1alpha1_replication_proto_depIdxs = []int32{
 	6,  // 16: matrixhub.v1alpha1.UpdateReplicationResponse.replication:type_name -> matrixhub.v1alpha1.ReplicationItem
 	6,  // 17: matrixhub.v1alpha1.DeleteReplicationResponse.replication:type_name -> matrixhub.v1alpha1.ReplicationItem
 	6,  // 18: matrixhub.v1alpha1.ListReplicationsResponse.replications:type_name -> matrixhub.v1alpha1.ReplicationItem
-	23, // 19: matrixhub.v1alpha1.ListReplicationsResponse.pagination:type_name -> matrixhub.v1alpha1.Pagination
-	2,  // 20: matrixhub.v1alpha1.ReplicationExecution.trigger_type:type_name -> matrixhub.v1alpha1.triggerType
-	3,  // 21: matrixhub.v1alpha1.ReplicationExecution.status:type_name -> matrixhub.v1alpha1.ReplicationExecutionStatus
-	17, // 22: matrixhub.v1alpha1.ListReplicationExecutionsResponse.executions:type_name -> matrixhub.v1alpha1.ReplicationExecution
-	23, // 23: matrixhub.v1alpha1.ListReplicationExecutionsResponse.pagination:type_name -> matrixhub.v1alpha1.Pagination
-	17, // 24: matrixhub.v1alpha1.StopReplicationExecutionResponse.execution:type_name -> matrixhub.v1alpha1.ReplicationExecution
-	13, // 25: matrixhub.v1alpha1.Replication.ListReplications:input_type -> matrixhub.v1alpha1.ListReplicationsRequest
-	7,  // 26: matrixhub.v1alpha1.Replication.CreateReplication:input_type -> matrixhub.v1alpha1.CreateReplicationRequest
-	9,  // 27: matrixhub.v1alpha1.Replication.UpdateReplication:input_type -> matrixhub.v1alpha1.UpdateReplicationRequest
-	11, // 28: matrixhub.v1alpha1.Replication.DeleteReplication:input_type -> matrixhub.v1alpha1.DeleteReplicationRequest
-	15, // 29: matrixhub.v1alpha1.Replication.CreateReplicationExecution:input_type -> matrixhub.v1alpha1.CreateReplicationExecutionRequest
-	18, // 30: matrixhub.v1alpha1.Replication.ListReplicationExecutions:input_type -> matrixhub.v1alpha1.ListReplicationExecutionsRequest
-	20, // 31: matrixhub.v1alpha1.Replication.StopReplicationExecution:input_type -> matrixhub.v1alpha1.StopReplicationExecutionRequest
-	14, // 32: matrixhub.v1alpha1.Replication.ListReplications:output_type -> matrixhub.v1alpha1.ListReplicationsResponse
-	8,  // 33: matrixhub.v1alpha1.Replication.CreateReplication:output_type -> matrixhub.v1alpha1.CreateReplicationResponse
-	10, // 34: matrixhub.v1alpha1.Replication.UpdateReplication:output_type -> matrixhub.v1alpha1.UpdateReplicationResponse
-	12, // 35: matrixhub.v1alpha1.Replication.DeleteReplication:output_type -> matrixhub.v1alpha1.DeleteReplicationResponse
-	16, // 36: matrixhub.v1alpha1.Replication.CreateReplicationExecution:output_type -> matrixhub.v1alpha1.CreateReplicationExecutionResponse
-	19, // 37: matrixhub.v1alpha1.Replication.ListReplicationExecutions:output_type -> matrixhub.v1alpha1.ListReplicationExecutionsResponse
-	21, // 38: matrixhub.v1alpha1.Replication.StopReplicationExecution:output_type -> matrixhub.v1alpha1.StopReplicationExecutionResponse
-	32, // [32:39] is the sub-list for method output_type
-	25, // [25:32] is the sub-list for method input_type
-	25, // [25:25] is the sub-list for extension type_name
-	25, // [25:25] is the sub-list for extension extendee
-	0,  // [0:25] is the sub-list for field type_name
+	25, // 19: matrixhub.v1alpha1.ListReplicationsResponse.pagination:type_name -> matrixhub.v1alpha1.Pagination
+	6,  // 20: matrixhub.v1alpha1.GetReplicationResponse.replication:type_name -> matrixhub.v1alpha1.ReplicationItem
+	2,  // 21: matrixhub.v1alpha1.ReplicationExecution.trigger_type:type_name -> matrixhub.v1alpha1.triggerType
+	3,  // 22: matrixhub.v1alpha1.ReplicationExecution.status:type_name -> matrixhub.v1alpha1.ReplicationExecutionStatus
+	19, // 23: matrixhub.v1alpha1.ListReplicationExecutionsResponse.executions:type_name -> matrixhub.v1alpha1.ReplicationExecution
+	25, // 24: matrixhub.v1alpha1.ListReplicationExecutionsResponse.pagination:type_name -> matrixhub.v1alpha1.Pagination
+	19, // 25: matrixhub.v1alpha1.StopReplicationExecutionResponse.execution:type_name -> matrixhub.v1alpha1.ReplicationExecution
+	13, // 26: matrixhub.v1alpha1.Replication.ListReplications:input_type -> matrixhub.v1alpha1.ListReplicationsRequest
+	15, // 27: matrixhub.v1alpha1.Replication.GetReplication:input_type -> matrixhub.v1alpha1.GetReplicationRequest
+	7,  // 28: matrixhub.v1alpha1.Replication.CreateReplication:input_type -> matrixhub.v1alpha1.CreateReplicationRequest
+	9,  // 29: matrixhub.v1alpha1.Replication.UpdateReplication:input_type -> matrixhub.v1alpha1.UpdateReplicationRequest
+	11, // 30: matrixhub.v1alpha1.Replication.DeleteReplication:input_type -> matrixhub.v1alpha1.DeleteReplicationRequest
+	17, // 31: matrixhub.v1alpha1.Replication.CreateReplicationExecution:input_type -> matrixhub.v1alpha1.CreateReplicationExecutionRequest
+	20, // 32: matrixhub.v1alpha1.Replication.ListReplicationExecutions:input_type -> matrixhub.v1alpha1.ListReplicationExecutionsRequest
+	22, // 33: matrixhub.v1alpha1.Replication.StopReplicationExecution:input_type -> matrixhub.v1alpha1.StopReplicationExecutionRequest
+	14, // 34: matrixhub.v1alpha1.Replication.ListReplications:output_type -> matrixhub.v1alpha1.ListReplicationsResponse
+	16, // 35: matrixhub.v1alpha1.Replication.GetReplication:output_type -> matrixhub.v1alpha1.GetReplicationResponse
+	8,  // 36: matrixhub.v1alpha1.Replication.CreateReplication:output_type -> matrixhub.v1alpha1.CreateReplicationResponse
+	10, // 37: matrixhub.v1alpha1.Replication.UpdateReplication:output_type -> matrixhub.v1alpha1.UpdateReplicationResponse
+	12, // 38: matrixhub.v1alpha1.Replication.DeleteReplication:output_type -> matrixhub.v1alpha1.DeleteReplicationResponse
+	18, // 39: matrixhub.v1alpha1.Replication.CreateReplicationExecution:output_type -> matrixhub.v1alpha1.CreateReplicationExecutionResponse
+	21, // 40: matrixhub.v1alpha1.Replication.ListReplicationExecutions:output_type -> matrixhub.v1alpha1.ListReplicationExecutionsResponse
+	23, // 41: matrixhub.v1alpha1.Replication.StopReplicationExecution:output_type -> matrixhub.v1alpha1.StopReplicationExecutionResponse
+	34, // [34:42] is the sub-list for method output_type
+	26, // [26:34] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_v1alpha1_replication_proto_init() }
@@ -1740,7 +1837,7 @@ func file_v1alpha1_replication_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_v1alpha1_replication_proto_rawDesc), len(file_v1alpha1_replication_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   18,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

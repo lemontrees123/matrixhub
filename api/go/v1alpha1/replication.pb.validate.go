@@ -61,8 +61,6 @@ func (m *PullBasePolicy) validate(all bool) error {
 
 	// no validation rules for ResourceName
 
-	// no validation rules for ResourceType
-
 	// no validation rules for TargetResourceName
 
 	if all {
@@ -195,8 +193,6 @@ func (m *PushBasePolicy) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for ResourceName
-
-	// no validation rules for ResourceType
 
 	// no validation rules for TargetRegistryId
 
@@ -1685,6 +1681,241 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListReplicationsResponseValidationError{}
+
+// Validate checks the field values on GetReplicationRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetReplicationRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetReplicationRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetReplicationRequestMultiError, or nil if none found.
+func (m *GetReplicationRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetReplicationRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ReplicationId
+
+	if len(errors) > 0 {
+		return GetReplicationRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetReplicationRequestMultiError is an error wrapping multiple validation
+// errors returned by GetReplicationRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetReplicationRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetReplicationRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetReplicationRequestMultiError) AllErrors() []error { return m }
+
+// GetReplicationRequestValidationError is the validation error returned by
+// GetReplicationRequest.Validate if the designated constraints aren't met.
+type GetReplicationRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetReplicationRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetReplicationRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetReplicationRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetReplicationRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetReplicationRequestValidationError) ErrorName() string {
+	return "GetReplicationRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetReplicationRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetReplicationRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetReplicationRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetReplicationRequestValidationError{}
+
+// Validate checks the field values on GetReplicationResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetReplicationResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetReplicationResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetReplicationResponseMultiError, or nil if none found.
+func (m *GetReplicationResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetReplicationResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetReplication()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetReplicationResponseValidationError{
+					field:  "Replication",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetReplicationResponseValidationError{
+					field:  "Replication",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetReplication()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetReplicationResponseValidationError{
+				field:  "Replication",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetReplicationResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetReplicationResponseMultiError is an error wrapping multiple validation
+// errors returned by GetReplicationResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GetReplicationResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetReplicationResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetReplicationResponseMultiError) AllErrors() []error { return m }
+
+// GetReplicationResponseValidationError is the validation error returned by
+// GetReplicationResponse.Validate if the designated constraints aren't met.
+type GetReplicationResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetReplicationResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetReplicationResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetReplicationResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetReplicationResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetReplicationResponseValidationError) ErrorName() string {
+	return "GetReplicationResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetReplicationResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetReplicationResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetReplicationResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetReplicationResponseValidationError{}
 
 // Validate checks the field values on CreateReplicationExecutionRequest with
 // the rules defined in the proto definition for this message. If any rules

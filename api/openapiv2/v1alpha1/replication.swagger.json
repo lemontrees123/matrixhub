@@ -93,6 +93,36 @@
       }
     },
     "/api/v1alpha1/replications/{replicationId}": {
+      "get": {
+        "summary": "GetReplication gets a replication by id.",
+        "operationId": "Replication_GetReplication",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1alpha1GetReplicationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "replicationId",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "Replication"
+        ]
+      },
       "delete": {
         "summary": "DeleteReplication deletes a replication.",
         "operationId": "Replication_DeleteReplication",
@@ -398,6 +428,14 @@
         }
       }
     },
+    "v1alpha1GetReplicationResponse": {
+      "type": "object",
+      "properties": {
+        "replication": {
+          "$ref": "#/definitions/v1alpha1ReplicationItem"
+        }
+      }
+    },
     "v1alpha1ListReplicationExecutionsResponse": {
       "type": "object",
       "properties": {
@@ -464,8 +502,11 @@
         "resourceName": {
           "type": "string"
         },
-        "resourceType": {
-          "$ref": "#/definitions/v1alpha1ResourceType"
+        "resourceTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1alpha1ResourceType"
+          }
         },
         "targetResourceName": {
           "type": "string"
@@ -482,8 +523,11 @@
         "resourceName": {
           "type": "string"
         },
-        "resourceType": {
-          "$ref": "#/definitions/v1alpha1ResourceType"
+        "resourceTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1alpha1ResourceType"
+          }
         },
         "targetRegistryId": {
           "type": "integer",

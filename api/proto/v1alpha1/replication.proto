@@ -15,6 +15,12 @@ service Replication {
       get: "/api/v1alpha1/replications"
     };
   }
+  // GetReplication gets a replication by id.
+  rpc GetReplication(GetReplicationRequest) returns (GetReplicationResponse) {
+    option (google.api.http) = {
+      get: "/api/v1alpha1/replications/{replication_id}"
+    };
+  }
   // CreateReplication creates a new replication.
   rpc CreateReplication(CreateReplicationRequest) returns (CreateReplicationResponse) {
     option (google.api.http) = {
@@ -71,7 +77,7 @@ enum ResourceType {
 message PullBasePolicy {
   uint32 source_registry_id = 1;
   string resource_name = 2;
-  ResourceType resource_type = 3;
+  repeated ResourceType resource_types = 3;
   string target_resource_name = 4;
   // post or put do not require this field.
   Registry source_registry = 5;
@@ -79,7 +85,7 @@ message PullBasePolicy {
 
 message PushBasePolicy {
   string resource_name = 1;
-  ResourceType resource_type = 2;
+  repeated ResourceType resource_types = 2;
   uint32 target_registry_id = 3;
   string target_resource_name = 4;
   // post or put do not require this field.
@@ -167,6 +173,14 @@ message ListReplicationsRequest {
 message ListReplicationsResponse {
   repeated ReplicationItem replications = 1;
   Pagination pagination = 2;
+}
+
+message GetReplicationRequest {
+  int32 replication_id = 1;
+}
+
+message GetReplicationResponse {
+  ReplicationItem replication = 1;
 }
 
 message CreateReplicationExecutionRequest {
