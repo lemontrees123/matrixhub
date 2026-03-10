@@ -1,6 +1,7 @@
 import {
   createRootRoute, Outlet, HeadContent,
 } from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import i18n from '@/i18n'
 
@@ -9,6 +10,7 @@ export const Route = createRootRoute({
     <>
       <HeadContent />
       <Outlet />
+      <TanStackRouterDevtools initialIsOpen={false} />
     </>
   ),
   head: () => ({
