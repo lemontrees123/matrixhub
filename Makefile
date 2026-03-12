@@ -124,6 +124,19 @@ clean: ## Clean all build artifacts
 	make -C web clean
 	make -C website clean
 
+.PHONY: local-run-web
+local-run-web: ## Run web frontend locally
+	cd ui && pnpm i && pnpm dev
+
+.PHONY: local-run-api
+local-run-api: ## Serve the API only
+	go run ./cmd/matrixhub apiserver
+
+
+.PHONY: local-run
+local-run: ## Run MatrixHub locally (web + API)
+	make -j2 local-run-web local-run-api
+
 ##@ E2E Testing
 
 .PHONY: deploy.kind-cluster

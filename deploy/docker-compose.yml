@@ -19,13 +19,20 @@ services:
     restart: unless-stopped
 
   matrixhub:
-    image: ghcr.io/matrixhub-ai/matrixhub:${TAG:-latest}
-    container_name: matrixhub
+    image: ghcr.io/matrixhub-ai/matrixhub:5ac74f2-dirty
+    container_name: matrixhub-apiserver
+    working_dir: /workspace
+    command:
+      - /usr/local/bin/matrixhub
+      - apiserver
+      - -c
+      - /etc/matrixhub/config.yaml
     ports:
       - "3001:3001"
     volumes:
       - ./data/matrixhub:/data/
       - ../config/config.yaml:/etc/matrixhub/config.yaml:ro
+      - ../db/migrations:/workspace/db/migrations:ro
     environment:
       - MATRIXHUB_DATABASE_DSN=matrixhub:changeme@tcp(mysql:3306)/matrixhub?charset=utf8mb4&multiStatements=true&parseTime=true
     depends_on:
