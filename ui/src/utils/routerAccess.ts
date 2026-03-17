@@ -1,7 +1,7 @@
 import {
   CurrentUser, type GetCurrentUserResponse, type GetProjectRolesResponse,
 } from '@matrixhub/api-ts/v1alpha1/current_user.pb'
-import { Projects, ProjectType } from '@matrixhub/api-ts/v1alpha1/project.pb'
+import { Projects } from '@matrixhub/api-ts/v1alpha1/project.pb'
 
 import type { ProjectRoleType } from '@matrixhub/api-ts/v1alpha1/role.pb'
 
@@ -117,19 +117,20 @@ export async function ensureProjectAccess(
 
   if (!role) {
     // Determine whether to show 403 (public project) or 404 (private project).
-    const project = await Projects.GetProject({ name: projectId })
-
-    if (project.type === ProjectType.PROJECT_TYPE_PUBLIC) {
-      if (allowPublicRead) {
-        return
-      }
-
-      // 403
-      throw new ForbiddenRouteError()
-    } else {
-      // 404
+    try {
+      // Private projects will reject the GetProject call for non-members, so treat any error as "not found" to avoid leaking existence information.
+      await Projects.GetProject({ name: projectId })
+    } catch {
       throw new NotFoundRouteError()
     }
+
+    // Public projects
+    if (allowPublicRead) {
+      return
+    }
+
+    // 403
+    throw new ForbiddenRouteError()
   }
 
   if (allowedRoles && !allowedRoles.includes(role)) {

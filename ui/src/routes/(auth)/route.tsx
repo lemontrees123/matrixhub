@@ -25,7 +25,6 @@ import {
   Outlet,
   useMatchRoute,
   CatchBoundary,
-  CatchNotFound,
   ErrorComponent,
   redirect,
   useRouterState,
@@ -256,14 +255,20 @@ function AccountMenu() {
   )
 }
 
+function AuthErrorComponent({ error }: { error: unknown }) {
+  if (isForbiddenRouteError(error)) {
+    return <RouteStatusPage code={403} />
+  }
+  if (isNotFoundRouteError(error)) {
+    return <RouteStatusPage code={404} />
+  }
+
+  return <ErrorComponent error={error} />
+}
+
 function AuthLayout() {
-  const catchBoundaryResetKey = useRouterState({
-    select: state => [
-      state.location.href,
-      state.resolvedLocation?.href ?? '',
-      state.status,
-      state.loadedAt,
-    ].join('|'),
+  const resetKey = useRouterState({
+    select: s => s.resolvedLocation?.href ?? s.location.href,
   })
 
   return (
@@ -306,37 +311,10 @@ function AuthLayout() {
         }}
       >
         <CatchBoundary
-          key={catchBoundaryResetKey}
-          getResetKey={() => catchBoundaryResetKey}
-          errorComponent={({ error }) => {
-            if (isForbiddenRouteError(error)) {
-              return (
-                <RouteStatusPage
-                  code={403}
-                />
-              )
-            }
-
-            if (isNotFoundRouteError(error)) {
-              return (
-                <RouteStatusPage
-                  code={404}
-                />
-              )
-            }
-
-            return <ErrorComponent error={error} />
-          }}
+          getResetKey={() => resetKey}
+          errorComponent={AuthErrorComponent}
         >
-          <CatchNotFound
-            fallback={() => (
-              <RouteStatusPage
-                code={404}
-              />
-            )}
-          >
-            <Outlet />
-          </CatchNotFound>
+          <Outlet />
         </CatchBoundary>
       </AppShell.Main>
     </AppShell>

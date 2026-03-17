@@ -1,16 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-
-import { RouteStatusPage } from '@/shared/components/RouteStatusPage'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/$')({
-  component: NotFoundPage,
+  beforeLoad: () => {
+    throw redirect({ to: '/' })
+  },
 })
-
-function NotFoundPage() {
-  return (
-    <RouteStatusPage
-      code={404}
-      fullScreen
-    />
-  )
-}
