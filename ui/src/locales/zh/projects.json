@@ -1,0 +1,10 @@
+{
+  "detail": {
+    "tabs": {
+      "models": "模型仓库",
+      "datasets": "数据集",
+      "members": "项目成员",
+      "settings": "设置"
+    }
+  }
+}
