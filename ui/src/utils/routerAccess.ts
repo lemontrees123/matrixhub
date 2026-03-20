@@ -1,7 +1,6 @@
-import {
-  CurrentUser, type GetCurrentUserResponse, type GetProjectRolesResponse,
-} from '@matrixhub/api-ts/v1alpha1/current_user.pb'
-import { Projects } from '@matrixhub/api-ts/v1alpha1/project.pb'
+import { currentUserQueryOptions, projectRolesQueryOptions } from '@/features/auth/auth.query'
+import { projectQueryOptions } from '@/features/projects/projects.query'
+import { queryClient } from '@/queryClient'
 
 import type { ProjectRoleType } from '@matrixhub/api-ts/v1alpha1/role.pb'
 
@@ -33,61 +32,6 @@ export function isNotFoundRouteError(error: unknown): error is NotFoundRouteErro
     || (error instanceof Error && error.name === 'NotFoundRouteError')
 }
 
-// ─── Auth cache ───────────────────────────────────────────────────────────────
-// Caches in-flight and resolved promises for 3 minutes so that multiple
-// beforeLoad / loader hooks in the same navigation share the same request.
-
-const CACHE_TTL = 180_000
-
-interface CacheEntry<T> {
-  promise: Promise<T>
-  expiresAt: number
-}
-
-let userCache: CacheEntry<GetCurrentUserResponse> | null = null
-let rolesCache: CacheEntry<GetProjectRolesResponse['projectRoles']> | null = null
-
-export function getCachedUser() {
-  if (!userCache || Date.now() > userCache.expiresAt) {
-    const promise = CurrentUser.GetCurrentUser({})
-      .catch((err) => {
-        userCache = null
-        throw err
-      })
-
-    userCache = {
-      promise,
-      expiresAt: Date.now() + CACHE_TTL,
-    }
-  }
-
-  return userCache.promise
-}
-
-export function getCachedProjectRoles() {
-  if (!rolesCache || Date.now() > rolesCache.expiresAt) {
-    const promise = CurrentUser.GetProjectRoles({})
-      .then(r => r.projectRoles ?? {})
-      .catch((err) => {
-        rolesCache = null
-        throw err
-      })
-
-    rolesCache = {
-      promise,
-      expiresAt: Date.now() + CACHE_TTL,
-    }
-  }
-
-  return rolesCache.promise
-}
-
-/** Call after login / logout to force fresh data on next access. */
-export function invalidateAuthCache() {
-  userCache = null
-  rolesCache = null
-}
-
 // ─── Access guard ─────────────────────────────────────────────────────────────
 
 interface EnsureProjectAccessOptions {
@@ -105,21 +49,19 @@ export async function ensureProjectAccess(
   } = options ?? {}
 
   const [currentUser, projectRoles] = await Promise.all([
-    getCachedUser(),
-    getCachedProjectRoles(),
+    queryClient.ensureQueryData(currentUserQueryOptions()),
+    queryClient.ensureQueryData(projectRolesQueryOptions()),
   ])
 
   if (currentUser.isAdmin) {
     return
   }
 
-  const role = projectRoles?.[projectId]
+  const role = projectRoles.projectRoles?.[projectId]
 
   if (!role) {
-    // Determine whether to show 403 (public project) or 404 (private project).
     try {
-      // Private projects will reject the GetProject call for non-members, so treat any error as "not found" to avoid leaking existence information.
-      await Projects.GetProject({ name: projectId })
+      await queryClient.ensureQueryData(projectQueryOptions(projectId))
     } catch {
       throw new NotFoundRouteError()
     }

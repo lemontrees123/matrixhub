@@ -34,6 +34,8 @@ import { useTranslation } from 'react-i18next'
 
 import LogoIcon from '@/assets/svgs/logo.svg?react'
 import { CurrentUserContext } from '@/context/current-user-context.tsx'
+import { currentUserQueryOptions } from '@/features/auth/auth.query'
+import { queryClient } from '@/queryClient'
 import { Route as DatasetsRoute } from '@/routes/(auth)/(app)/datasets'
 import { Route as CreateDatasetRoute } from '@/routes/(auth)/(app)/datasets/new'
 import { Route as ModelsRoute } from '@/routes/(auth)/(app)/models'
@@ -45,15 +47,13 @@ import { Route as ProjectModelRoute } from '@/routes/(auth)/(app)/projects_.$pro
 import { Route as AdminRoute } from '@/routes/(auth)/admin'
 import { LanguageSwitcher } from '@/shared/components/LanguageSwitcher'
 import { RouteStatusPage } from '@/shared/components/RouteStatusPage'
-import {
-  getCachedUser, isForbiddenRouteError, isNotFoundRouteError,
-} from '@/utils/routerAccess'
+import { isForbiddenRouteError, isNotFoundRouteError } from '@/utils/routerAccess'
 
 export const Route = createFileRoute('/(auth)')({
   component: AuthLayout,
   beforeLoad: async () => {
     try {
-      await getCachedUser()
+      await queryClient.ensureQueryData(currentUserQueryOptions())
     } catch {
       throw redirect({ to: '/login' })
     }

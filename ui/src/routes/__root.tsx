@@ -3,9 +3,10 @@ import {
 } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
-import { CurrentUserContext } from '@/context/current-user-context'
+import { CurrentUserContext } from '@/context/current-user-context.tsx'
+import { currentUserQueryOptions } from '@/features/auth/auth.query'
 import i18n from '@/i18n'
-import { getCachedUser } from '@/utils/routerAccess'
+import { queryClient } from '@/queryClient'
 
 import type { QueryClient } from '@tanstack/react-query'
 
@@ -41,7 +42,7 @@ export const Route = createRootRouteWithContext<{
 }>()({
   loader: async () => {
     try {
-      return await getCachedUser()
+      return await queryClient.ensureQueryData(currentUserQueryOptions())
     } catch {
       return undefined
     }

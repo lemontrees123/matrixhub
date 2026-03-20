@@ -1,11 +1,8 @@
 import {
-  Button,
-  Center,
-  Stack,
-  Text,
-  Title,
+  Box, Button, Stack, Text, Title,
 } from '@mantine/core'
 import { Link } from '@tanstack/react-router'
+import { useTranslation } from 'react-i18next'
 
 interface RouteStatusPageProps {
   code: 403 | 404
@@ -20,39 +17,55 @@ export function RouteStatusPage({
   description,
   fullScreen = false,
 }: RouteStatusPageProps) {
-  const defaultDescriptions = {
-    403: 'You do not have permission to access this page.',
-    404: 'The page you are looking for does not exist or has been moved.',
-  }
-
-  const defaultTitles = {
-    403: 'Access Denied',
-    404: 'Page Not Found',
-  }
+  const { t } = useTranslation()
 
   return (
-    <Center h={fullScreen ? '100vh' : '100%'}>
-      <Stack align="center" gap="md">
-        <Title
-          order={1}
-          style={{
-            fontSize: 96,
-            lineHeight: 1,
-            color: '#DEE2E6',
-          }}
-        >
-          {code}
+    <Box
+      h={fullScreen ? '100vh' : '100%'}
+      pos="relative"
+      style={{
+        overflow: 'hidden',
+      }}
+    >
+      <Box
+        aria-hidden
+        pos="absolute"
+        fw="900"
+        c="gray.1"
+        lh="1"
+        lts="-0.04em"
+        left="50%"
+        style={{
+          top: 'calc(50% - var(--app-shell-header-height) / 2)',
+          fontSize: 'clamp(180px, 35vw, 500px)',
+          userSelect: 'none',
+          transform: 'translateY(-50%) translateX(-50%)',
+        }}
+      >
+        {code}
+      </Box>
+
+      <Stack
+        align="center"
+        gap="md"
+        pos="absolute"
+        left="50%"
+        top="50%"
+        style={{
+          transform: 'translateX(-50%)',
+          zIndex: 1,
+        }}
+      >
+        <Title order={2} fw={700} fz={28} ta="center">
+          {title ?? t(`common.errorPage.${code}.title`)}
         </Title>
-        <Title order={2}>
-          {title ?? defaultTitles[code]}
-        </Title>
-        <Text c="dimmed" size="lg" ta="center" maw={400}>
-          {description ?? defaultDescriptions[code]}
+        <Text c="dimmed" size="md" ta="center" maw={500}>
+          {description ?? t(`common.errorPage.${code}.description`)}
         </Text>
-        <Button component={Link} to="/" mt="md">
-          Back to Home
+        <Button component={Link} to="/" size="md" mt="sm">
+          {t('common.errorPage.backToHome')}
         </Button>
       </Stack>
-    </Center>
+    </Box>
   )
 }
