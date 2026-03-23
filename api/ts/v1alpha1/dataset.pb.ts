@@ -87,7 +87,7 @@ export type GetDatasetTreeRequest = {
 }
 
 export type GetDatasetTreeResponse = {
-  items?: MatrixhubV1alpha1Model.Files[]
+  items?: MatrixhubV1alpha1Model.File[]
 }
 
 export type GetDatasetBlobRequest = {

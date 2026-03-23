@@ -62,7 +62,37 @@ func (g *gitRepo) gitPath(repoType string, project, name string) string {
 }
 
 func (g *gitRepo) buildURL(repoType, project, name, revision, path string) string {
+	if revision == "" {
+		revision = "main"
+	}
 	return fmt.Sprintf("/%s/%s/resolve/%s/%s", repoPrefix(repoType)+project, name, revision, path)
+}
+
+// resolveRef disambiguates a short revision name by trying refs/heads/ before refs/tags/.
+// Already-qualified refs (refs/heads/..., refs/tags/...) and 40-char SHAs pass through unchanged.
+func resolveRef(repo *repository.Repository, rev string) string {
+	if rev == "" || strings.HasPrefix(rev, "refs/") || isCommitSHA(rev) {
+		return rev
+	}
+	if _, err := repo.ResolveRevision("refs/heads/" + rev); err == nil {
+		return "refs/heads/" + rev
+	}
+	if _, err := repo.ResolveRevision("refs/tags/" + rev); err == nil {
+		return "refs/tags/" + rev
+	}
+	return rev
+}
+
+func isCommitSHA(s string) bool {
+	if len(s) != 40 {
+		return false
+	}
+	for _, c := range s {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') && (c < 'A' || c > 'F') {
+			return false
+		}
+	}
+	return true
 }
 
 // CreateRepository initializes a Git repository
@@ -164,6 +194,7 @@ func (g *gitRepo) ListCommits(ctx context.Context, project, name, revision strin
 		return nil, 0, err
 	}
 
+	revision = resolveRef(repo, revision)
 	commits, err := repo.Commits(revision, nil)
 	if err != nil {
 		return nil, 0, err
@@ -246,6 +277,7 @@ func (g *gitRepo) GetTree(ctx context.Context, project, name, revision, path str
 		return nil, err
 	}
 
+	revision = resolveRef(repo, revision)
 	entries, err := repo.Tree(revision, path, &repository.TreeOptions{
 		Recursive: false,
 	})
@@ -321,6 +353,7 @@ func (g *gitRepo) GetBlob(ctx context.Context, project, name, revision, path str
 		return nil, err
 	}
 
+	revision = resolveRef(repo, revision)
 	blob, err := repo.Blob(revision, path)
 	if err != nil {
 		// Check if it's a directory
