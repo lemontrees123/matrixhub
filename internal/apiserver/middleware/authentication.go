@@ -18,7 +18,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/alexedwards/scs/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -41,8 +40,7 @@ func AuthInterceptor(sessionRepo user.ISessionRepo) grpc.UnaryServerInterceptor 
 		if publicMethods[info.FullMethod] {
 			return handler(ctx, req)
 		}
-		cookieStatus := sessionRepo.Status(ctx)
-		if cookieStatus != scs.Unmodified && cookieStatus != scs.Modified {
+		if !sessionRepo.Exists(ctx, user.UsernameCtxKey.String()) {
 			return nil, status.Error(codes.Unauthenticated, codes.Unauthenticated.String())
 		}
 

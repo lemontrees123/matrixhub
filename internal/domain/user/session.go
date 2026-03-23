@@ -37,4 +37,5 @@ type ISessionRepo interface {
 	Put(ctx context.Context, key string, val interface{})
 	Destroy(ctx context.Context) error
 	Status(ctx context.Context) scs.Status
+	Exists(ctx context.Context, key string) bool
 }
