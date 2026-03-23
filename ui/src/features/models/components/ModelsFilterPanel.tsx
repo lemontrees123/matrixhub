@@ -1,10 +1,13 @@
-import { Models } from '@matrixhub/api-ts/v1alpha1/model.pb.ts'
-import { Projects } from '@matrixhub/api-ts/v1alpha1/project.pb.ts'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { type ModelsSearch, Route } from '@/routes/(auth)/(app)/models'
+import {
+  modelLibraryLabelsQueryOptions,
+  modelProjectsQueryOptions,
+  modelTaskLabelsQueryOptions,
+} from '@/features/models/models.query'
+import { type ModelsCatalogSearch, Route } from '@/routes/(auth)/(app)/models'
 import { LibraryFilterPanel } from '@/shared/components/resource-filter-panel/LibraryFilterPanel'
 import { ProjectFilterPanel } from '@/shared/components/resource-filter-panel/ProjectFilterPanel'
 import { ResourceFilterPanels as SharedResourceFilterPanel } from '@/shared/components/resource-filter-panel/ResourceFilterPanels'
@@ -12,7 +15,7 @@ import { TaskFilterPanel } from '@/shared/components/resource-filter-panel/TaskF
 
 import type { FilterTabDefinition } from '@/shared/components/resource-filter-panel/types.ts'
 
-type ModelFilterSearch = Pick<ModelsSearch, 'task' | 'library' | 'project'>
+type ModelFilterSearch = Pick<ModelsCatalogSearch, 'task' | 'library' | 'project'>
 
 type ModelFilterTab = keyof ModelFilterSearch
 
@@ -43,38 +46,17 @@ export function ModelsFilterPanel() {
   const {
     data: taskLabels = [],
     isLoading: taskLabelsLoading,
-  } = useQuery({
-    queryKey: ['Models.ListModelTaskLabels'],
-    queryFn: async () => {
-      const response = await Models.ListModelTaskLabels({})
-
-      return response.items ?? []
-    },
-  })
+  } = useQuery(modelTaskLabelsQueryOptions())
 
   const {
     data: libraryLabels = [],
     isLoading: libraryLabelsLoading,
-  } = useQuery({
-    queryKey: ['Models.ListModelFrameLabels'],
-    queryFn: async () => {
-      const response = await Models.ListModelFrameLabels({})
-
-      return response.items ?? []
-    },
-  })
+  } = useQuery(modelLibraryLabelsQueryOptions())
 
   const {
     data: projects = [],
     isLoading: projectsLoading,
-  } = useQuery({
-    queryKey: ['Models.ListProjects'],
-    queryFn: async () => {
-      const response = await Projects.ListProjects({})
-
-      return response.projects ?? []
-    },
-  })
+  } = useQuery(modelProjectsQueryOptions())
 
   const search = Route.useSearch()
   const {

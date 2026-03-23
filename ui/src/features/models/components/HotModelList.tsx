@@ -2,8 +2,10 @@ import {
   Box, Collapse, Group, Text, UnstyledButton,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
+import { modelsCatalogQueryOptions } from '@/features/models/models.query'
 import { Route } from '@/routes/(auth)/(app)/models'
 import { ModelCard } from '@/shared/components/resource-card/ModelCard.tsx'
 import { ResourceCardGrid } from '@/shared/components/ResourceCardGrid'
@@ -11,7 +13,9 @@ import { ResourceCardGrid } from '@/shared/components/ResourceCardGrid'
 export function HotModelList() {
   const { t } = useTranslation()
   const [opened, { toggle }] = useDisclosure(false)
-  const { items = [] } = Route.useLoaderData()
+  const search = Route.useSearch()
+  const { data } = useSuspenseQuery(modelsCatalogQueryOptions(search))
+  const { items = [] } = data
   const hotModels = items.slice(0, 6)
 
   const cardElements = hotModels.map((model) => {
