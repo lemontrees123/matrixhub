@@ -4,6 +4,8 @@ This document defines how TanStack Query, TanStack Form, and TanStack Router wor
 
 ## Architecture Overview
 
+### Component Hierarchy
+
 ```
 Router (navigation + prefetch)
   └─ loader: queryClient.ensureQueryData(queryOptions)
@@ -12,6 +14,46 @@ Router (navigation + prefetch)
             ├─ useMutation(mutationOptions)      → write data
             └─ useForm({ onSubmit: mutation })   → form → mutation
 ```
+
+### End-to-End Data Flow
+
+```
+schema → query → mutation → route loader → page → form submit → invalidation
+```
+
+1. **Schema** — Zod schema defines the data shape and validation rules
+2. **Query** — `queryOptions()` factory wraps the SDK call with a cache key
+3. **Mutation** — `mutationOptions()` factory wraps the write call with notification meta
+4. **Route loader** — `ensureQueryData(queryOptions)` prefetches data on navigation
+5. **Page** — `useSuspenseQuery(queryOptions)` reads the cached data (guaranteed non-undefined)
+6. **Form submit** — `useForm({ onSubmit })` validates locally, then calls `mutation.mutateAsync()`
+7. **Invalidation** — `MutationCache.onSuccess` auto-invalidates via `meta.invalidates`; notifications fire globally
+
+### File Structure
+
+```
+src/
+  features/{feature}/
+    {feature}.schema.ts       # Zod schemas and derived types
+    {feature}.query.ts        # query key factory + queryOptions + custom hooks
+    {feature}.mutation.ts     # mutationOptions for create/update/delete
+    components/
+      {Feature}Form.tsx       # form component using useForm + mutation
+      {Feature}Table.tsx      # table/list component
+    pages/
+      {Feature}Page.tsx       # page component using useSuspenseQuery
+      {Feature}DetailPage.tsx
+
+  routes/(auth)/(app)/
+    {feature}/
+      index.tsx               # list route — validateSearch + loader + mount page
+      $id.tsx                  # detail route — loader + mount detail page
+
+  queryClient.ts              # QueryClient with QueryCache + MutationCache
+  types/tanstack-query.ts     # NotificationMeta interface
+```
+
+### Roles
 
 - **Router** prefetches data in loaders using `queryOptions`
 - **Query** manages server state (reads via `useQuery`/`useSuspenseQuery`, writes via `useMutation`)

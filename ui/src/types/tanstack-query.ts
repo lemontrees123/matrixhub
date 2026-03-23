@@ -7,5 +7,5 @@ export interface NotificationMeta {
   /** Skip all notifications for this query/mutation */
   skipNotification?: boolean
   /** Query keys to invalidate on mutation success */
-  invalidates?: readonly unknown[][]
+  invalidates?: readonly (readonly unknown[])[]
 }

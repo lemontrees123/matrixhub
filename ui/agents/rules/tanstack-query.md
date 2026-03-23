@@ -49,18 +49,24 @@ Do not pass explicit generics to `useQuery<Data, Error>()`. Let TypeScript infer
 
 ## Custom Hooks
 
-Wrap `useQuery` in a custom hook only when you need to compose additional options like `placeholderData` or conditional enabling.
+When a route loader already prefetches data, the page component should call `useSuspenseQuery(queryOptions)` directly — do not wrap it in a custom hook just for the sake of abstraction.
+
+Introduce a custom hook only when it adds real behavior beyond a plain `useQuery` / `useSuspenseQuery` call, such as `placeholderData`, conditional `enabled`, derived return values, or composed multiple queries.
 
 ```ts
+// ✅ Custom hook adds real behavior (placeholderData)
 export function useProjects(search: ProjectsSearch) {
   return useQuery({
     ...projectsQueryOptions(search),
     placeholderData: keepPreviousData,
   })
 }
-```
 
-For route components where data is prefetched in the loader, prefer `useSuspenseQuery` directly in the component (no custom hook wrapper needed).
+// ❌ Don't do this — thin wrapper adds no value
+export function useProjectDetail(projectId: string) {
+  return useSuspenseQuery(projectDetailQueryOptions(projectId))
+}
+```
 
 ## Mutation Options Factory
 
