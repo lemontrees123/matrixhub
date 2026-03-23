@@ -17,11 +17,21 @@ import {
 } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 
+import { currentUserQueryOptions } from '@/features/auth/auth.query'
+import { queryClient } from '@/queryClient'
 import { Route as AdminRegistriesRoute, Icon as AdminRegistriesIcon } from '@/routes/(auth)/admin/registries'
 import { Route as AdminReplicationsRoute, Icon as AdminReplicationsIcon } from '@/routes/(auth)/admin/replications'
 import { Route as AdminUsersRoute, Icon as AdminUsersIcon } from '@/routes/(auth)/admin/users'
+import { forbiddenError } from '@/utils/routerAccess'
 
 export const Route = createFileRoute('/(auth)/admin')({
+  beforeLoad: async () => {
+    const user = await queryClient.ensureQueryData(currentUserQueryOptions())
+
+    if (!user.isAdmin) {
+      throw forbiddenError()
+    }
+  },
   component: AdminLayout,
   staticData: {
     navName: 'Admin',

@@ -24,10 +24,18 @@ import {
   linkOptions,
   Outlet,
   useMatchRoute,
+  CatchBoundary,
+  ErrorComponent,
+  redirect,
+  useRouterState,
 } from '@tanstack/react-router'
+import { use } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import LogoIcon from '@/assets/svgs/logo.svg?react'
+import { CurrentUserContext } from '@/context/current-user-context.tsx'
+import { currentUserQueryOptions } from '@/features/auth/auth.query'
+import { queryClient } from '@/queryClient'
 import { Route as DatasetsRoute } from '@/routes/(auth)/(app)/datasets'
 import { Route as CreateDatasetRoute } from '@/routes/(auth)/(app)/datasets/new'
 import { Route as ModelsRoute } from '@/routes/(auth)/(app)/models'
@@ -38,9 +46,18 @@ import { Route as ProjectDatasetRoute } from '@/routes/(auth)/(app)/projects_.$p
 import { Route as ProjectModelRoute } from '@/routes/(auth)/(app)/projects_.$projectId/models.$modelId/route'
 import { Route as AdminRoute } from '@/routes/(auth)/admin'
 import { LanguageSwitcher } from '@/shared/components/LanguageSwitcher'
+import { RouteStatusPage } from '@/shared/components/RouteStatusPage'
+import { isForbiddenRouteError, isNotFoundRouteError } from '@/utils/routerAccess'
 
 export const Route = createFileRoute('/(auth)')({
   component: AuthLayout,
+  beforeLoad: async () => {
+    try {
+      await queryClient.ensureQueryData(currentUserQueryOptions())
+    } catch {
+      throw redirect({ to: '/login' })
+    }
+  },
 })
 
 function AppLogo() {
@@ -150,7 +167,9 @@ function AppNavbar() {
 
 function AccountMenu() {
   const { t } = useTranslation()
-  const menuItems = linkOptions([
+  const user = use(CurrentUserContext)
+
+  const baseMenuItems = linkOptions([
     {
       label: t('nav.profile'),
       icon: UserIcon,
@@ -166,12 +185,17 @@ function AccountMenu() {
       icon: DatasetIcon,
       to: CreateDatasetRoute.to,
     },
-    {
-      label: t('nav.settings'),
-      icon: SettingsIcon,
-      to: AdminRoute.to,
-    },
   ])
+
+  const adminMenuItem = linkOptions([{
+    label: t('nav.settings'),
+    icon: SettingsIcon,
+    to: AdminRoute.to,
+  }])
+
+  const menuItems = user?.isAdmin
+    ? [...baseMenuItems, ...adminMenuItem]
+    : baseMenuItems
 
   return (
     <Menu
@@ -189,7 +213,7 @@ function AccountMenu() {
               size={24}
             />
             <Text size="sm">
-              Admin
+              {user?.username ?? '...'}
             </Text>
             <ArrowDownIcon
               size={rem(16)}
@@ -231,7 +255,22 @@ function AccountMenu() {
   )
 }
 
+function AuthErrorComponent({ error }: { error: unknown }) {
+  if (isForbiddenRouteError(error)) {
+    return <RouteStatusPage code={403} />
+  }
+  if (isNotFoundRouteError(error)) {
+    return <RouteStatusPage code={404} />
+  }
+
+  return <ErrorComponent error={error} />
+}
+
 function AuthLayout() {
+  const resetKey = useRouterState({
+    select: s => s.resolvedLocation?.href ?? s.location.href,
+  })
+
   return (
     <AppShell
       mode="static"
@@ -271,7 +310,12 @@ function AuthLayout() {
           },
         }}
       >
-        <Outlet />
+        <CatchBoundary
+          getResetKey={() => resetKey}
+          errorComponent={AuthErrorComponent}
+        >
+          <Outlet />
+        </CatchBoundary>
       </AppShell.Main>
     </AppShell>
   )

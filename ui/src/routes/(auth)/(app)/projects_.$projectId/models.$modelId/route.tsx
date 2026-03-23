@@ -10,8 +10,16 @@ import {
 } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 
+import { projectRolesQueryOptions } from '@/features/auth/auth.query'
 import { buildModelBadges, buildModelMetaItems } from '@/features/models/models.utils'
+import { queryClient } from '@/queryClient'
 import { ResourceDetailHeader } from '@/shared/components/ResourceDetailHeader'
+import {
+  forbiddenError,
+  isSdkPermissionDenied,
+  isSdkNotFound,
+  notFoundError,
+} from '@/utils/routerAccess'
 
 import { Route as ModelSettingsRoute } from './settings'
 import { Route as ModelTreeRoute } from './tree/$ref/$'
@@ -23,10 +31,31 @@ export const Route = createFileRoute(
 )({
   component: ModelDetailLayout,
   loader: async ({ params }) => {
-    return await Models.GetModel({
-      project: params.projectId,
-      name: params.modelId,
-    })
+    const projectRoles = await queryClient.ensureQueryData(projectRolesQueryOptions())
+    let model: Awaited<ReturnType<typeof Models.GetModel>>
+
+    // if the project is private and user has no access, will throw error
+    try {
+      model = await Models.GetModel({
+        project: params.projectId,
+        name: params.modelId,
+      })
+    } catch (e) {
+      if (isSdkPermissionDenied(e)) {
+        throw forbiddenError()
+      }
+
+      if (isSdkNotFound(e)) {
+        throw notFoundError()
+      }
+
+      throw e
+    }
+
+    return {
+      model,
+      projectRoles: projectRoles,
+    }
   },
 })
 
@@ -36,9 +65,10 @@ function ModelDetailLayout() {
     projectId, modelId,
   } = Route.useParams()
 
-  const model = Route.useLoaderData()
-  // TODO: use real project role
-  const hasProjectRole = true
+  const {
+    model, projectRoles,
+  } = Route.useLoaderData()
+  const hasProjectRole = Boolean(projectRoles.projectRoles?.[projectId])
 
   const tabRoutes = linkOptions([
     {
@@ -112,7 +142,10 @@ function ModelDetailLayout() {
         </Tabs.List>
       </Tabs>
 
-      <Outlet />
+      <Box>
+        {activeTab === 'desc' && <div>Description Page</div>}
+        <Outlet />
+      </Box>
     </Box>
   )
 }
