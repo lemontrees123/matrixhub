@@ -7,5 +7,7 @@
   "noResults": "No results",
   "confirm": "Confirm",
   "cancel": "Cancel",
-  "colon": ": "
+  "colon": ": ",
+  "backgroundRefreshFailed": "Background refresh failed",
+  "operationFailed": "Operation failed"
 }
