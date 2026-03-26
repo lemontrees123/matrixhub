@@ -16,6 +16,7 @@ package handler
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/samber/lo"
 	"google.golang.org/grpc/codes"
@@ -23,18 +24,23 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	projectv1alpha1 "github.com/matrixhub-ai/matrixhub/api/go/v1alpha1"
+	"github.com/matrixhub-ai/matrixhub/internal/domain/authz"
 	"github.com/matrixhub-ai/matrixhub/internal/domain/project"
 	"github.com/matrixhub-ai/matrixhub/internal/domain/role"
+	"github.com/matrixhub-ai/matrixhub/internal/domain/user"
 	"github.com/matrixhub-ai/matrixhub/internal/infra/log"
+	"github.com/matrixhub-ai/matrixhub/internal/infra/utils"
 )
 
 type ProjectHandler struct {
-	projectRepo project.IProjectRepo
+	projectRepo  project.IProjectRepo
+	authzService authz.IAuthzService
 }
 
-func NewProjectHandler(repo project.IProjectRepo) IHandler {
+func NewProjectHandler(repo project.IProjectRepo, authzService authz.IAuthzService) IHandler {
 	return &ProjectHandler{
-		projectRepo: repo,
+		projectRepo:  repo,
+		authzService: authzService,
 	}
 }
 
@@ -48,6 +54,11 @@ func (h *ProjectHandler) RegisterToServer(opt *ServerOptions) {
 func (h *ProjectHandler) CreateProject(ctx context.Context, req *projectv1alpha1.CreateProjectRequest) (*projectv1alpha1.CreateProjectResponse, error) {
 	if err := req.ValidateAll(); err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	existingProject, err := h.projectRepo.GetProjectByName(ctx, req.GetName())
+	if err == nil && existingProject != nil {
+		return nil, status.Error(codes.AlreadyExists, "project with this name already exists")
 	}
 
 	p := &project.Project{
@@ -76,6 +87,10 @@ func (h *ProjectHandler) GetProject(ctx context.Context, req *projectv1alpha1.Ge
 	p, err := h.projectRepo.GetProjectByName(ctx, req.GetName())
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
+	}
+
+	if allowed, err := h.authzService.VerifyProjectPermission(ctx, p.ID, authz.ProjectRead); err != nil || !allowed {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 
 	resp := &projectv1alpha1.GetProjectResponse{
@@ -123,6 +138,7 @@ func (h *ProjectHandler) ListProjects(ctx context.Context, req *projectv1alpha1.
 			Total:    int32(total),
 			Page:     req.GetPage(),
 			PageSize: req.GetPageSize(),
+			Pages:    utils.CalculatePages(total, req.GetPageSize()),
 		},
 	}, nil
 }
@@ -135,6 +151,10 @@ func (h *ProjectHandler) UpdateProject(ctx context.Context, req *projectv1alpha1
 	p, err := h.projectRepo.GetProjectByName(ctx, req.GetName())
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
+	}
+
+	if allowed, err := h.authzService.VerifyProjectPermission(ctx, p.ID, authz.ProjectUpdate); err != nil || !allowed {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 
 	p.Type = convertProtoTypeToDomain(req.GetType())
@@ -156,6 +176,10 @@ func (h *ProjectHandler) DeleteProject(ctx context.Context, req *projectv1alpha1
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
+	if allowed, err := h.authzService.VerifyProjectPermission(ctx, projectID, authz.ProjectDelete); err != nil || !allowed {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
+
 	if err := h.projectRepo.DeleteProject(ctx, projectID); err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -171,6 +195,10 @@ func (h *ProjectHandler) ListProjectMembers(ctx context.Context, req *projectv1a
 	projectID, err := h.projectRepo.GetProjectIDByName(ctx, req.GetName())
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
+	}
+
+	if allowed, err := h.authzService.VerifyProjectPermission(ctx, projectID, authz.MemberRead); err != nil || !allowed {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 
 	members, total, err := h.projectRepo.ListProjectMembers(
@@ -197,6 +225,7 @@ func (h *ProjectHandler) ListProjectMembers(ctx context.Context, req *projectv1a
 			Total:    int32(total),
 			Page:     req.GetPage(),
 			PageSize: req.GetPageSize(),
+			Pages:    utils.CalculatePages(total, req.GetPageSize()),
 		},
 	}, nil
 }
@@ -211,8 +240,12 @@ func (h *ProjectHandler) AddProjectMemberWithRole(ctx context.Context, req *proj
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
+	if allowed, err := h.authzService.VerifyProjectPermission(ctx, projectID, authz.MemberAdd); err != nil || !allowed {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
+	}
+
 	pm := &project.ProjectMember{
-		ProjectID:  projectID,
+		ProjectID:  &projectID,
 		MemberID:   req.GetMemberId(),
 		MemberType: convertProtoMemberTypeToDomain(req.GetMemberType()),
 		RoleID:     convertProtoRoleToDomain(req.GetRole()),
@@ -230,9 +263,20 @@ func (h *ProjectHandler) RemoveProjectMembers(ctx context.Context, req *projectv
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
+	currentUserID := strconv.Itoa(user.GetCurrentUserId(ctx))
+	for _, m := range req.GetMembers() {
+		if m.GetMemberType() == projectv1alpha1.MemberType_MEMBER_TYPE_USER && m.GetMemberId() == currentUserID {
+			return nil, status.Error(codes.InvalidArgument, "cannot remove yourself from the project")
+		}
+	}
+
 	projectID, err := h.projectRepo.GetProjectIDByName(ctx, req.GetName())
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
+	}
+
+	if allowed, err := h.authzService.VerifyProjectPermission(ctx, projectID, authz.MemberRemove); err != nil || !allowed {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 
 	members := lo.Map(req.GetMembers(), func(m *projectv1alpha1.MemberToRemove, _ int) *project.Member {
@@ -257,6 +301,10 @@ func (h *ProjectHandler) UpdateProjectMemberRole(ctx context.Context, req *proje
 	projectID, err := h.projectRepo.GetProjectIDByName(ctx, req.GetName())
 	if err != nil {
 		return nil, status.Error(codes.NotFound, err.Error())
+	}
+
+	if allowed, err := h.authzService.VerifyProjectPermission(ctx, projectID, authz.MemberRoleUpdate); err != nil || !allowed {
+		return nil, status.Error(codes.PermissionDenied, "permission denied")
 	}
 
 	if err := h.projectRepo.UpdateProjectMemberRole(ctx, projectID, project.Member{

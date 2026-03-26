@@ -43,6 +43,7 @@ import (
 	"github.com/matrixhub-ai/matrixhub/internal/apiserver/handler"
 	backendhf "github.com/matrixhub-ai/matrixhub/internal/apiserver/handler/hf"
 	"github.com/matrixhub-ai/matrixhub/internal/apiserver/middleware"
+	"github.com/matrixhub-ai/matrixhub/internal/domain/authz"
 	"github.com/matrixhub-ai/matrixhub/internal/domain/dataset"
 	"github.com/matrixhub-ai/matrixhub/internal/domain/model"
 	"github.com/matrixhub-ai/matrixhub/internal/domain/syncjob"
@@ -71,6 +72,7 @@ type APIServer struct {
 	repos        *repo.Repos
 	handlers     []handler.IHandler
 	modelService model.IModelService
+	authzService authz.IAuthzService
 }
 
 func NewAPIServer(config *config.Config) *APIServer {
@@ -105,6 +107,12 @@ func NewAPIServer(config *config.Config) *APIServer {
 	server.initGitHooks()
 	server.initGitStorage()
 	server.initHandlersServicesRepos()
+
+	// Register authn + authz middleware (must be after initHandlersServicesRepos)
+	server.engine.Use(
+		middleware.GinAuthn(server.repos.Session),
+		middleware.Authz(server.authzService.VerifyPlatformPermission),
+	)
 
 	streamMiddleware := []grpc.StreamServerInterceptor{
 		grpc_recovery.StreamServerInterceptor(),
@@ -294,6 +302,9 @@ func (server *APIServer) initHandlersServicesRepos() {
 		server.gitStorage.sharedMirror,
 	)
 
+	// init permission service
+	authzService := authz.NewAuthzService(repos.Project)
+
 	// init domain services, add if needed
 	modelService := model.NewModelService(
 		repos.Model,
@@ -326,10 +337,10 @@ func (server *APIServer) initHandlersServicesRepos() {
 	// init handlers
 	handlers := []handler.IHandler{
 		handler.NewLoginHandler(userService),
-		handler.NewProjectHandler(repos.Project),
-		handler.NewUserHandler(repos.User),
-		handler.NewCurrentUserHandler(repos.User, repos.AccessToken),
 		handler.NewRegistryHandler(repos.Registry),
+		handler.NewProjectHandler(repos.Project, authzService),
+		handler.NewUserHandler(repos.User, repos.Project, authzService),
+		handler.NewCurrentUserHandler(repos.User, repos.AccessToken),
 		handler.NewDatasetHandler(datasetService),
 		handler.NewModelHandler(modelService),
 		handler.NewSyncPolicyHandler(syncPolicyService, repos.Registry),
@@ -338,6 +349,7 @@ func (server *APIServer) initHandlersServicesRepos() {
 	server.repos = repos
 	server.handlers = handlers
 	server.modelService = modelService
+	server.authzService = authzService
 }
 
 func (server *APIServer) registerRoutersAndHandlers() {
@@ -346,6 +358,7 @@ func (server *APIServer) registerRoutersAndHandlers() {
 
 	// register routers
 	server.engine.Any("/api/v1alpha1/*any", gin.WrapF(server.gatewayMux.ServeHTTP))
+	server.engine.Any("/apis/v1alpha1/*any", gin.WrapF(server.gatewayMux.ServeHTTP))
 
 	// serve ui static files if staticDir is configured
 	staticDir := server.config.UI.StaticDir

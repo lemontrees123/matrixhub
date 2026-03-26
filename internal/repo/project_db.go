@@ -17,11 +17,14 @@ package repo
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"gorm.io/gorm"
 
+	"github.com/matrixhub-ai/matrixhub/internal/domain/authz"
 	"github.com/matrixhub-ai/matrixhub/internal/domain/project"
 	"github.com/matrixhub-ai/matrixhub/internal/domain/role"
+	"github.com/matrixhub-ai/matrixhub/internal/domain/user"
 	"github.com/matrixhub-ai/matrixhub/internal/infra/utils"
 )
 
@@ -36,8 +39,28 @@ func NewProjectDBRepo(db *gorm.DB) *ProjectDBRepo {
 }
 
 func (r *ProjectDBRepo) CreateProject(ctx context.Context, param *project.Project) (*project.Project, error) {
-	dbWithCtx := r.db.WithContext(ctx)
-	if err := dbWithCtx.Create(param).Error; err != nil {
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(param).Error; err != nil {
+			return err
+		}
+
+		creatorID := r.getCurrentUserID(ctx)
+		if creatorID != "" {
+			member := &project.ProjectMember{
+				ProjectID:  &param.ID,
+				MemberID:   creatorID,
+				MemberType: project.MemberTypeUser,
+				RoleID:     role.ProjectRoleAdmin,
+			}
+			if err := tx.Create(member).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
 		return nil, err
 	}
 
@@ -70,12 +93,12 @@ func (r *ProjectDBRepo) GetProjectIDByName(ctx context.Context, name string) (in
 	return p.ID, nil
 }
 
-// getCurrentUserID is a mock method to get current user ID from context.
-// TODO: Replace with actual authentication logic when implemented.
 func (r *ProjectDBRepo) getCurrentUserID(ctx context.Context) string {
-	// Mock: return a placeholder user ID
-	// In production, this should extract user ID from JWT token or session
-	return "mock-user-id"
+	userID := user.GetCurrentUserId(ctx)
+	if userID == 0 {
+		return ""
+	}
+	return strconv.Itoa(userID)
 }
 
 func (r *ProjectDBRepo) ListProjects(ctx context.Context, name string, projectType project.ProjectType, managedOnly bool, page, pageSize int) ([]*project.Project, int64, error) {
@@ -91,10 +114,13 @@ func (r *ProjectDBRepo) ListProjects(ctx context.Context, name string, projectTy
 		query = query.Where("type = ?", projectType)
 	}
 
-	// If managedOnly is true, only return projects where the current user has access
+	userID := r.getCurrentUserID(ctx)
 	if managedOnly {
-		userID := r.getCurrentUserID(ctx)
+		// Only return projects where the current user has access
 		query = query.Where("EXISTS (SELECT 1 FROM members_roles_projects WHERE project_id = projects.id AND member_id = ? AND member_type = ?)", userID, project.MemberTypeUser)
+	} else {
+		// Return projects where user has access OR public projects
+		query = query.Where("type = ? OR EXISTS (SELECT 1 FROM members_roles_projects WHERE project_id = projects.id AND member_id = ? AND member_type = ?)", project.ProjectTypePublic, userID, project.MemberTypeUser)
 	}
 
 	if err := query.Count(&total).Error; err != nil {
@@ -107,12 +133,12 @@ func (r *ProjectDBRepo) ListProjects(ctx context.Context, name string, projectTy
 		(SELECT COUNT(*) FROM datasets WHERE datasets.project_id = projects.id) as dataset_count`)
 
 	if utils.IsFullPageData(page, pageSize) {
-		if err := query.Find(&projects).Error; err != nil {
+		if err := query.Order("projects.name ASC").Find(&projects).Error; err != nil {
 			return nil, 0, err
 		}
 	} else {
 		offset := (page - 1) * pageSize
-		if err := query.Offset(offset).Limit(pageSize).Find(&projects).Error; err != nil {
+		if err := query.Order("projects.name ASC").Offset(offset).Limit(pageSize).Find(&projects).Error; err != nil {
 			return nil, 0, err
 		}
 	}
@@ -152,12 +178,12 @@ func (r *ProjectDBRepo) ListProjectMembers(ctx context.Context, projectID int, m
 	}
 
 	if utils.IsFullPageData(page, pageSize) {
-		if err := query.Find(&members).Error; err != nil {
+		if err := query.Order("users.username ASC").Find(&members).Error; err != nil {
 			return nil, 0, err
 		}
 	} else {
 		offset := (page - 1) * pageSize
-		if err := query.Offset(offset).Limit(pageSize).Find(&members).Error; err != nil {
+		if err := query.Order("users.username ASC").Offset(offset).Limit(pageSize).Find(&members).Error; err != nil {
 			return nil, 0, err
 		}
 	}
@@ -201,4 +227,116 @@ func (r *ProjectDBRepo) UpdateProjectMemberRole(ctx context.Context, projectID i
 	}
 
 	return nil
+}
+
+func (r *ProjectDBRepo) GetUserProjectPermissions(ctx context.Context, userID string, projectID int) ([]authz.Permission, error) {
+	var ro role.Role
+	err := r.db.WithContext(ctx).
+		Table("roles").
+		Select("roles.permissions").
+		Joins("INNER JOIN members_roles_projects mrp ON mrp.role_id = roles.id").
+		Where("mrp.project_id = ? AND mrp.member_id = ? AND mrp.member_type = ?", projectID, userID, project.MemberTypeUser).
+		First(&ro).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return ro.Permissions, nil
+}
+
+func (r *ProjectDBRepo) GetUserProjectRole(ctx context.Context, userID string, projectID int) (int, error) {
+	var member project.ProjectMember
+	err := r.db.WithContext(ctx).
+		Select("role_id").
+		Where("project_id = ? AND member_id = ? AND member_type = ?", projectID, userID, project.MemberTypeUser).
+		First(&member).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil
+		}
+		return 0, err
+	}
+	return int(member.RoleID), nil
+}
+
+func (r *ProjectDBRepo) GetUserPlatformPermissions(ctx context.Context, userID string) ([]authz.Permission, error) {
+	var ro role.Role
+	err := r.db.WithContext(ctx).
+		Table("roles").
+		Select("roles.permissions").
+		Joins("INNER JOIN members_roles_projects mrp ON mrp.role_id = roles.id").
+		Where("mrp.project_id IS NULL AND mrp.member_id = ? AND mrp.member_type = ?", userID, project.MemberTypeUser).
+		First(&ro).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return ro.Permissions, nil
+}
+
+func (r *ProjectDBRepo) IsUserSysAdmin(ctx context.Context, userID string) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Model(&project.ProjectMember{}).
+		Where("member_id = ? AND member_type = ? AND project_id IS NULL AND role_id = ?", userID, project.MemberTypeUser, role.PlatformRoleAdmin).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+func (r *ProjectDBRepo) SetUserSysAdmin(ctx context.Context, userID string, isAdmin bool) error {
+	if isAdmin {
+		isAdminAlready, err := r.IsUserSysAdmin(ctx, userID)
+		if err != nil {
+			return err
+		}
+		if isAdminAlready {
+			return nil
+		}
+
+		member := &project.ProjectMember{
+			MemberID:   userID,
+			MemberType: project.MemberTypeUser,
+			RoleID:     role.PlatformRoleAdmin,
+			ProjectID:  nil,
+		}
+		return r.db.WithContext(ctx).Create(member).Error
+	} else {
+		return r.db.WithContext(ctx).
+			Where("member_id = ? AND member_type = ? AND project_id IS NULL AND role_id = ?", userID, project.MemberTypeUser, role.PlatformRoleAdmin).
+			Delete(&project.ProjectMember{}).Error
+	}
+}
+
+func (r *ProjectDBRepo) GetUserAllProjectRoles(ctx context.Context, userID string) (map[string]int, error) {
+	type projectRole struct {
+		ProjectName string
+		RoleID      int
+	}
+
+	var results []projectRole
+	err := r.db.WithContext(ctx).
+		Table("members_roles_projects").
+		Select("projects.name as project_name, members_roles_projects.role_id").
+		Joins("INNER JOIN projects ON projects.id = members_roles_projects.project_id").
+		Where("members_roles_projects.member_id = ? AND members_roles_projects.member_type = ? AND members_roles_projects.project_id IS NOT NULL", userID, project.MemberTypeUser).
+		Scan(&results).Error
+	if err != nil {
+		return nil, err
+	}
+
+	roles := make(map[string]int)
+	for _, result := range results {
+		roles[result.ProjectName] = result.RoleID
+	}
+
+	return roles, nil
 }

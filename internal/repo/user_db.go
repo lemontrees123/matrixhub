@@ -58,17 +58,17 @@ func (u *UserRepo) GetUserByName(ctx context.Context, username string) (*user.Us
 func (u *UserRepo) ListUsers(ctx context.Context, page, pageSize int, search string) (us []*user.User, total int64, err error) {
 	query := u.db.WithContext(ctx).Model(&user.User{})
 	if search != "" {
-		query = query.Where("name LIKE ?", "%"+search+"%")
+		query = query.Where("username LIKE ?", "%"+search+"%")
 	}
 	if err = query.Count(&total).Error; err != nil {
 		return
 	}
 
 	if utils.IsFullPageData(page, pageSize) {
-		err = query.Find(&us).Error
+		err = query.Order("username ASC").Find(&us).Error
 	} else {
 		offset := (page - 1) * pageSize
-		err = query.Offset(offset).Limit(pageSize).Find(&us).Error
+		err = query.Order("username ASC").Offset(offset).Limit(pageSize).Find(&us).Error
 	}
 	return
 }
