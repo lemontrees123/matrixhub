@@ -56,7 +56,7 @@ func (h *Handler) handleTree(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo, err := h.openRepo(r.Context(), repoPath, ri.RepoName, repository.GitUploadPack)
+	repo, err := h.openRepo(r.Context(), ri, repoPath, repository.GitUploadPack)
 	if err != nil {
 		if errors.Is(err, repository.ErrRepositoryNotExists) {
 			responseJSON(w, fmt.Errorf("repository %q not found", ri.RepoName), http.StatusNotFound)
@@ -141,7 +141,7 @@ func (h *Handler) handleTreeSize(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo, err := h.openRepo(r.Context(), repoPath, ri.RepoName, repository.GitUploadPack)
+	repo, err := h.openRepo(r.Context(), ri, repoPath, repository.GitUploadPack)
 	if err != nil {
 		if errors.Is(err, repository.ErrRepositoryNotExists) {
 			responseJSON(w, fmt.Errorf("repository %q not found", ri.RepoName), http.StatusNotFound)
@@ -193,7 +193,7 @@ func (h *Handler) handleResolve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	repo, err := h.openRepo(r.Context(), repoPath, ri.RepoName, repository.GitUploadPack)
+	repo, err := h.openRepo(r.Context(), ri, repoPath, repository.GitUploadPack)
 	if err != nil {
 		if errors.Is(err, repository.ErrRepositoryNotExists) {
 			responseJSON(w, fmt.Errorf("repository %q not found", ri.RepoName), http.StatusNotFound)

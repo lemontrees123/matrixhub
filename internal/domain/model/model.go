@@ -63,6 +63,10 @@ type MetadataUpdate struct {
 	ParameterCount *int64
 }
 
+func (m *Model) ShouldSync() bool {
+	return time.Since(m.UpdatedAt) >= time.Minute
+}
+
 // IModelRepo defines the repository interface for model operations.
 type IModelRepo interface {
 	// Create creates a new model in the database.

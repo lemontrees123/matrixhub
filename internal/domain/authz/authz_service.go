@@ -45,7 +45,7 @@ type AuthzService struct {
 }
 
 // NewAuthzService creates permission verification service
-func NewAuthzService(projectRepo IAuthzProjectRepo) *AuthzService {
+func NewAuthzService(projectRepo IAuthzProjectRepo) IAuthzService {
 	return &AuthzService{
 		projectRepo: projectRepo,
 	}

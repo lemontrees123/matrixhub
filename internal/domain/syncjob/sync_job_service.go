@@ -93,7 +93,7 @@ func (sjs *SyncJobService) ExecuteSyncJob(ctx context.Context, syncJob *SyncJob)
 	}
 	mod, _ := sjs.modelRepo.GetByProjectAndName(ctx, syncJob.ProjectName, syncJob.ResourceName)
 	if mod != nil {
-		if err = sjs.gitRepo.Pull(ctx, gr); err != nil {
+		if err = sjs.gitRepo.PullFromRemote(ctx, gr); err != nil {
 			return err
 		}
 	} else {
@@ -106,7 +106,7 @@ func (sjs *SyncJobService) ExecuteSyncJob(ctx context.Context, syncJob *SyncJob)
 		if _, err = sjs.modelRepo.Create(ctx, mod); err != nil {
 			return err
 		}
-		if err = sjs.gitRepo.Clone(ctx, gr); err != nil {
+		if err = sjs.gitRepo.CloneFromRemote(ctx, gr); err != nil {
 			return err
 		}
 	}

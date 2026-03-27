@@ -122,9 +122,9 @@ type IGitRepo interface {
 	// repoType: "models" or "datasets"
 	GetBlob(ctx context.Context, repoType, project, name, revision, path string) (*TreeEntry, error)
 
-	Clone(ctx context.Context, gitRepository *GitRepository) error
+	CloneFromRemote(ctx context.Context, gitRepository *GitRepository) error
 
-	Pull(ctx context.Context, gitRepository *GitRepository) error
+	PullFromRemote(ctx context.Context, gitRepository *GitRepository) error
 
 	// ExtractMetadata reads metadata-related raw files from a Git repository.
 	// repoType: "models" or "datasets"

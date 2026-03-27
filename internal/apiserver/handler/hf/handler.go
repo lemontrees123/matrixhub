@@ -26,6 +26,9 @@ import (
 	"github.com/matrixhub-ai/hfd/pkg/receive"
 	"github.com/matrixhub-ai/hfd/pkg/repository"
 	"github.com/matrixhub-ai/hfd/pkg/storage"
+
+	"github.com/matrixhub-ai/matrixhub/internal/domain/model"
+	"github.com/matrixhub-ai/matrixhub/internal/infra/log"
 )
 
 // Handler handles HTTP requests for HuggingFace-compatible API endpoints, including repository management and git operations.
@@ -39,10 +42,18 @@ type Handler struct {
 	preReceiveHookFunc  receive.PreReceiveHookFunc
 	postReceiveHookFunc receive.PostReceiveHookFunc
 	mirror              *mirror.Mirror
+	modelService        model.IModelService
 }
 
 // Option defines a functional option for configuring the Handler.
 type Option func(*Handler)
+
+// WithServices sets the services for the router.
+func WithServices(model model.IModelService) Option {
+	return func(h *Handler) {
+		h.modelService = model
+	}
+}
 
 // WithMiddlewares sets the middlewares for the router.
 func WithMiddlewares(middlewares ...mux.MiddlewareFunc) Option {
@@ -215,11 +226,15 @@ func getRepoInformation(r *http.Request) repoInformation {
 	}
 }
 
-func (h *Handler) openRepo(ctx context.Context, repoPath, repoName, service string) (*repository.Repository, error) {
+func (h *Handler) openRepo(ctx context.Context, ri repoInformation, repoPath, service string) (*repository.Repository, error) {
 	if h.mirror == nil || service != repository.GitUploadPack {
 		return repository.Open(repoPath)
 	}
-	return h.mirror.OpenOrSync(ctx, repoPath, repoName)
+	if err := h.modelService.SyncFromRemote(ctx, ri.Namespace, ri.Name); err != nil {
+		log.Errorf("failed to sync from remote for %s/%s: %v", ri.Namespace, ri.Name, err)
+		return nil, err
+	}
+	return repository.Open(repoPath)
 }
 
 func responseJSON(w http.ResponseWriter, data any, sc int) {

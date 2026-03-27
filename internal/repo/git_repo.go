@@ -416,7 +416,7 @@ func (g *gitRepo) GetBlob(ctx context.Context, repoType, project, name, revision
 	}, nil
 }
 
-func (g *gitRepo) Clone(ctx context.Context, gitRepository *git.GitRepository) error {
+func (g *gitRepo) CloneFromRemote(ctx context.Context, gitRepository *git.GitRepository) error {
 	gitPath := g.gitPath(gitRepository.ResourceType, gitRepository.ProjectName, gitRepository.ResourceName)
 	if repository.IsRepository(gitPath) {
 		return fmt.Errorf("repository already exists")
@@ -431,13 +431,16 @@ func (g *gitRepo) Clone(ctx context.Context, gitRepository *git.GitRepository) e
 	return g.mirror.Sync(ctx, gitPath, repoName, mirror.WithSyncMirrorSourceURL(sourceURL))
 }
 
-func (g *gitRepo) Pull(ctx context.Context, gitRepository *git.GitRepository) error {
+func (g *gitRepo) PullFromRemote(ctx context.Context, gitRepository *git.GitRepository) error {
 	gitPath := g.gitPath(gitRepository.ResourceType, gitRepository.ProjectName, gitRepository.ResourceName)
-	if !repository.IsRepository(gitPath) {
-		return fmt.Errorf("repository does not exist")
-	}
 	repoName := repoPrefix(gitRepository.ResourceType) + gitRepository.ProjectName + "/" + gitRepository.ResourceName
 	sourceURL := strings.TrimSuffix(gitRepository.RemoteRegistryURL, "/") + "/" + repoName
+	if !repository.IsRepository(gitPath) {
+		_, err := repository.InitMirror(ctx, gitPath, sourceURL)
+		if err != nil {
+			return err
+		}
+	}
 	return g.mirror.Sync(ctx, gitPath, repoName, mirror.WithSyncMirrorSourceURL(sourceURL))
 }
 

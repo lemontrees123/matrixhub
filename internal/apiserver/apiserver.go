@@ -69,10 +69,9 @@ type APIServer struct {
 	gitHooks   gitHooks
 	gitStorage gitStorage
 
-	repos        *repo.Repos
-	handlers     []handler.IHandler
-	modelService model.IModelService
-	authzService authz.IAuthzService
+	repos    *repo.Repos
+	services *Services
+	handlers []handler.IHandler
 }
 
 func NewAPIServer(config *config.Config) *APIServer {
@@ -115,7 +114,7 @@ func NewAPIServer(config *config.Config) *APIServer {
 	unaryMiddleware := []grpc.UnaryServerInterceptor{
 		grpc_recovery.UnaryServerInterceptor(),
 		middleware.AuthInterceptor(server.repos.Session),
-		middleware.AuthzInterceptor(server.authzService.VerifyPlatformPermission),
+		middleware.AuthzInterceptor(server.services.Authz.VerifyPlatformPermission),
 	}
 
 	grpcServer := grpc.NewServer(
@@ -156,38 +155,6 @@ func (server *APIServer) initGitHooks() {
 	}
 
 	postReceiveHookFunc := func(ctx context.Context, repoName string, updates []receive.RefUpdate) error {
-		// Detect repo type from repoName prefix
-		repoType := "models"
-		actualName := repoName
-
-		if strings.HasPrefix(repoName, "datasets/") {
-			repoType = "datasets"
-			actualName = strings.TrimPrefix(repoName, "datasets/")
-		} else if strings.HasPrefix(repoName, "spaces/") {
-			repoType = "spaces"
-			actualName = strings.TrimPrefix(repoName, "spaces/")
-		}
-
-		// Only handle models for now
-		if repoType != "models" {
-			return nil
-		}
-
-		parts := strings.SplitN(actualName, "/", 2)
-		if len(parts) != 2 {
-			log.Warnf("invalid repo name format: %s", repoName)
-			return nil
-		}
-
-		if server.modelService == nil {
-			log.Warnf("Model service not initialized, skipping metadata sync for %s", repoName)
-			return nil
-		}
-
-		if err := server.modelService.SyncMetadata(ctx, parts[0], parts[1]); err != nil {
-			log.Errorf("failed to sync metadata for %s/%s: %v", parts[0], parts[1], err)
-		}
-
 		return nil
 	}
 
@@ -241,7 +208,7 @@ func (server *APIServer) initGitStorage() {
 		mirror.WithPreReceiveHookFunc(preReceiveHookFunc),
 		mirror.WithPostReceiveHookFunc(postReceiveHookFunc),
 		mirror.WithLFSCache(lfsTeeCache),
-		mirror.WithTTL(time.Hour),
+		mirror.WithTTL(time.Minute),
 	)
 
 	server.gitStorage.storage = storage
@@ -266,6 +233,7 @@ func (server *APIServer) initBackends(handler http.Handler) http.Handler {
 		backendhf.WithPostReceiveHookFunc(postReceiveHookFunc),
 		backendhf.WithLFSStorage(lfsStorage),
 		backendhf.WithMiddlewares(middleware.HFAuthenticationMiddleware(server.repos.AccessToken)),
+		backendhf.WithServices(server.services.Model),
 	)
 
 	handler = backendlfs.NewHandler(
@@ -291,6 +259,12 @@ func (server *APIServer) initBackends(handler http.Handler) http.Handler {
 	return handler
 }
 
+type Services struct {
+	Model   model.IModelService
+	Dataset dataset.IDatasetService
+	Authz   authz.IAuthzService
+}
+
 func (server *APIServer) initHandlersServicesRepos() {
 	// init repos
 	repos := repo.NewRepos(server.config,
@@ -306,6 +280,8 @@ func (server *APIServer) initHandlersServicesRepos() {
 		repos.Model,
 		repos.Label,
 		repos.Git,
+		repos.Project,
+		repos.Registry,
 	)
 	datasetService := dataset.NewDatasetService(
 		repos.Dataset,
@@ -329,6 +305,11 @@ func (server *APIServer) initHandlersServicesRepos() {
 		repos.SyncTask,
 		syncJobService,
 	)
+	server.services = &Services{
+		Model:   modelService,
+		Dataset: datasetService,
+		Authz:   authzService,
+	}
 
 	// init handlers
 	handlers := []handler.IHandler{
@@ -344,8 +325,6 @@ func (server *APIServer) initHandlersServicesRepos() {
 
 	server.repos = repos
 	server.handlers = handlers
-	server.modelService = modelService
-	server.authzService = authzService
 }
 
 func (server *APIServer) registerRoutersAndHandlers() {
